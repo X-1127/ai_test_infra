@@ -43,8 +43,8 @@
 
 ## 最后一句
 
-建欢迎围观我的碎念。  
-建议先看 [server/](/X-1127/ai_test_infra/tree/main/server) 目录，那是我最得意的部分。  
-顺便可以翻翻 [LOG.md](/X-1127/ai_test_infra/blob/main/server/LOG.md)，里面应该有我被各种整懵的真实记录……
+欢迎围观我的碎念。  
+建议先看 [server/ 目录](/X-1127/ai_test_infra/tree/main/server)，那是我最得意的部分。  
+顺便可以翻翻 [LOG.md](/X-1127/ai_test_infra/blob/main/LOG.md)，里面应该有我被各种整懵的真实记录……
 
 —— 谢宇，2026.04
