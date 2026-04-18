@@ -35,20 +35,54 @@
 - 在尝试阶段2的时候遇到了服务器卡死的问题，尚不清楚原因；
 - 是否能让延迟可配置？能不能做到随机延迟？延迟上限合理的值是什么？都还不清楚
 
-**产出文件**：
-llm-mock-server/
-| 文件名 | 文件类型 | 用途说明 |
-|--------|----------|----------|
-| main.py | 主程序 | Mock LLM 服务器核心实现，包含 OpenAI 兼容的 API 接口 |
-| requirements.txt | 依赖配置 | 项目所需的 Python 包及其版本 |
-| README.md | 项目文档 | 详细的使用说明、API 文档和示例代码 |
-| test_main.py | 单元测试 | 完整的 pytest 测试套件，测试所有 API 端点 |
-| start.bat | 启动脚本 | Windows 批处理脚本，用于快速启动服务器 |
-| check_dependencies.py | 工具脚本 | 检查所有依赖包是否正确安装 |
-| simple_test.py | 测试脚本 | 简单的测试脚本，快速验证服务器功能 |
-| client_test.py | 测试脚本 | 异步客户端测试脚本，使用 httpx 测试 API |
-| manual_test.py | 测试脚本 | 手动测试脚本，支持自定义环境变量 |
-| quick_test.py | 测试脚本 | 快速测试脚本，验证基本功能 |
-| test_app.py | 测试文件 | 早期测试应用示例 |
 
-**明日计划**：继续用trae完善Mock Server
+**明日计划**：重构test_app.py，使用pytest测试类
+
+## 2026-04-18
+
+**目标**：重构项目文件结构，建立专业的pytest测试框架
+
+**已完成的工作**：
+
+- ✅ 项目结构重构
+    - 创建server子文件夹，将所有代码文件迁移到server目录
+    - 更新start.bat脚本，适配新的目录结构
+
+- ✅ 测试框架搭建
+    - 创建server/tests文件夹，建立标准pytest测试结构
+    - 创建server/tests/__init__.py空文件
+    - 创建server/tests/conftest.py，包含共享fixtures
+    - 重构所有测试文件，移除手动创建的client实例，改用pytest fixtures
+    - 创建pytest.ini配置文件，设置测试路径和命名规则
+
+- ✅ 测试文件重构
+    - test_main.py：主要API测试，使用client fixture
+    - test_simple.py：简单测试，重构成pytest测试类
+    - test_quick.py：快速测试，重构成pytest测试类
+    - test_manual.py：手动测试，重构成pytest测试类
+    - test_client_integration.py：客户端集成测试，使用asyncio
+    - test_app.py：应用测试，重构成pytest测试类
+
+**卡点**：
+- 笔者今日一次性拔了四颗智齿，疼痛难忍导致无法正常工作
+- 休息半天，复习一下FastAPI的相关内容
+
+
+**记录使用方法**：
+```bash
+# 运行所有测试
+pytest
+
+# 运行特定测试文件
+pytest server/tests/test_main.py
+
+# 运行特定测试类
+pytest server/tests/test_main.py::TestChatCompletions
+
+# 查看详细输出
+pytest -v
+```
+
+**明日计划**：继续完善Mock Server功能，进入阶段2（延迟注入）
+
+## 2026-04-19
