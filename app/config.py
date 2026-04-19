@@ -1,24 +1,40 @@
 import os
 from typing import Optional
+from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic import Field, field_validator
 
 
-class Settings:
-    def __init__(self):
-        self.app_name = os.getenv("APP_NAME", "Mock LLM Server")
-        self.app_version = os.getenv("APP_VERSION", "1.0.0")
-        
-        self.host = os.getenv("HOST", "0.0.0.0")
-        self.port = int(os.getenv("PORT", "8000"))
-        self.debug = os.getenv("DEBUG", "false").lower() == "true"
-        
-        self.mock_response = os.getenv("MOCK_RESPONSE", "This is a mock response.")
-        
-        self.log_level = os.getenv("LOG_LEVEL", "INFO")
-        self.log_format = os.getenv("LOG_FORMAT", "json")
-        
-        self.rate_limit_enabled = os.getenv("RATE_LIMIT_ENABLED", "false").lower() == "true"
-        self.rate_limit_requests = int(os.getenv("RATE_LIMIT_REQUESTS", "100"))
-        self.rate_limit_window = int(os.getenv("RATE_LIMIT_WINDOW", "60"))
+class Settings(BaseSettings):
+    app_name: str = "Mock LLM Server"
+    app_version: str = "1.0.0"
+    
+    host: str = "0.0.0.0"
+    port: int = 8000
+    debug: bool = False
+    
+    mock_response: str = "This is a mock response."
+    
+    log_level: str = "INFO"
+    log_format: str = "json"
+    
+    rate_limit_enabled: bool = False
+    rate_limit_requests: int = 100
+    rate_limit_window: int = 60
+
+    @field_validator('debug', 'rate_limit_enabled', mode='before')
+    @classmethod
+    def parse_bool(cls, v):
+        if isinstance(v, bool):
+            return v
+        if isinstance(v, str):
+            return v.lower() in ('true', '1', 'yes', 'on')
+        return bool(v)
+
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        case_sensitive=False
+    )
 
 
 settings = Settings()

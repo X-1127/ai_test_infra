@@ -40,7 +40,7 @@
 
 ## 2026-04-18
 
-**目标**：重构项目文件结构，建立专业的pytest测试框架
+**目标**：重构test_app.py，使用pytest测试类
 
 **已完成的工作**：
 
@@ -68,21 +68,59 @@
 - 休息半天，复习一下FastAPI的相关内容
 
 
-**记录使用方法**：
-```bash
-# 运行所有测试
-pytest
 
-# 运行特定测试文件
-pytest server/tests/test_main.py
-
-# 运行特定测试类
-pytest server/tests/test_main.py::TestChatCompletions
-
-# 查看详细输出
-pytest -v
-```
-
-**明日计划**：继续完善Mock Server功能，进入阶段2（延迟注入）
+**明日计划**：重构项目文件结构，学习阶段2（延迟注入）前置知识
 
 ## 2026-04-19
+
+**目标**：项目完全重构，建立现代化Python项目结构，学习阶段2（延迟注入）前置知识
+
+**已完成的工作**：
+
+- ✅ 项目完全重构
+    - 创建新的目录结构：
+        - `app/` - 应用主目录（main.py, config.py, models.py, api/, services/）
+        - `tests/` - 测试目录（unit/, integration/, fixtures/）
+        - `scripts/` - 脚本工具目录
+        - `docs/` - 文档目录
+        - `logs/` - 日志目录
+    - 删除旧的 `server/` 目录
+    - 创建完整的配置文件：`pyproject.toml`, `.env`, `.env.example`
+    - 创建 Docker 支持：`Dockerfile`, `docker-compose.yml`
+
+- ✅ 模块化设计
+    - `app/main.py` - FastAPI 应用入口
+    - `app/config.py` - 配置管理
+    - `app/models.py` - Pydantic 数据模型
+    - `app/api/chat.py` - 聊天 API 路由
+    - `app/services/mock_service.py` - 模拟服务业务逻辑
+
+- ✅ 配置管理优化
+    - **切换到 Pydantic V2**：使用 `pydantic_settings.BaseSettings` 和 `SettingsConfigDict`
+    - **增强配置验证**：添加 `@field_validator` 处理各种布尔值格式
+    - **移除过时语法**：不再使用 `Field(default=..., env=...)` 的过时写法
+
+- ✅ 功能验证
+    - 成功启动服务器：`python scripts/start_server.py`
+    - 验证健康检查端点：`http://localhost:8000/health`
+    - 验证根路径：`http://localhost:8000/`
+    - 验证聊天接口：`http://localhost:8000/v1/chat/completions`
+    - 验证 API 文档：`http://localhost:8000/docs`
+
+**遇到的问题和解决方案**：
+
+
+1. **Pydantic V2 弃用警告**
+    - 问题：使用了过时的 Pydantic V1 语法
+    - 解决：迁移到 Pydantic V2 语法
+
+2. **文件管理混乱**
+    - 问题：存在大量中间测试文件和旧代码
+    - 解决：系统化清理，删除所有不必要的文件和目录
+
+
+**明日计划**：
+1. 继续完善 Mock Server 功能，进入阶段2（延迟注入）
+2. 添加对应阶段2的测试用例覆盖
+3. 实现日志系统
+4. 探索延迟注入的可配置性和随机延迟实现

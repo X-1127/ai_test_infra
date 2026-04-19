@@ -1,13 +1,24 @@
 import time
+from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from app.config import settings
 from app.models import HealthResponse, RootResponse
 from app.api.chat import router as chat_router
 
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    print(f"Starting {settings.app_name} v{settings.app_version}")
+    print(f"Mock response: {settings.mock_response}")
+    yield
+    print(f"Shutting down {settings.app_name}")
+
+
 app = FastAPI(
     title=settings.app_name,
     version=settings.app_version,
-    debug=settings.debug
+    debug=settings.debug,
+    lifespan=lifespan
 )
 
 app.include_router(chat_router)
@@ -28,17 +39,6 @@ async def root():
 @app.get("/health", response_model=HealthResponse)
 async def health():
     return HealthResponse(status="healthy")
-
-
-@app.on_event("startup")
-async def startup_event():
-    print(f"Starting {settings.app_name} v{settings.app_version}")
-    print(f"Mock response: {settings.mock_response}")
-
-
-@app.on_event("shutdown")
-async def shutdown_event():
-    print(f"Shutting down {settings.app_name}")
 
 
 if __name__ == "__main__":
