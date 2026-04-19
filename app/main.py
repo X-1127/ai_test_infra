@@ -31,6 +31,9 @@ async def root():
         message=f"{settings.app_name} is running",
         endpoints={
             "chat_completions": "/v1/chat/completions",
+            "get_injection_config": "/v1/config/injection",
+            "update_injection_config": "/v1/config/injection",
+            "reset_injection_config": "/v1/config/injection/reset",
             "health": "/health"
         }
     )
