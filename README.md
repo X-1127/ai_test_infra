@@ -39,10 +39,11 @@
 - 一个每天记日志、会复盘、有真实卡点记录的学习过程
 - 一个虽然不完美但能跑的测试工具（Mock Server）
 
+
 ## 最后一句
   
 感谢你看到这里。  
-建议先看 [server/ 目录](https://github.com/X-1127/ai_test_infra/tree/main/server)，那是我最得意的部分。  
-想找乐子就翻翻 [LOG.md](https://github.com/X-1127/ai_test_infra/blob/main/LOG.md)，里面应该有我被各种整懵的真实记录……
+建议先看 [app/ 目录](app/)，那是我最得意的部分。  
+想找乐子就翻翻 [LOG.md](LOG.md)，里面应该有我被各种整懵的真实记录……
 
 —— XY，2026.04

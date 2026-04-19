@@ -1,0 +1,25 @@
+{
+  "basic_chat": {
+    "model": "gpt-3.5",
+    "messages": [
+      {"role": "user", "content": "你好"}
+    ]
+  },
+  "multi_turn_chat": {
+    "model": "gpt-4",
+    "messages": [
+      {"role": "system", "content": "You are a helpful assistant."},
+      {"role": "user", "content": "Hello"},
+      {"role": "assistant", "content": "Hi there!"},
+      {"role": "user", "content": "How are you?"}
+    ]
+  },
+  "custom_parameters": {
+    "model": "gpt-4",
+    "messages": [
+      {"role": "user", "content": "Test message"}
+    ],
+    "temperature": 0.7,
+    "max_tokens": 200
+  }
+}

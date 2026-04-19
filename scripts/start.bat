@@ -1,0 +1,3 @@
+@echo off
+echo Starting Mock LLM Server...
+python scripts\start_server.py
