@@ -68,6 +68,11 @@ docker-compose logs -f
 docker-compose down
 ```
 
+4. **重启服务**
+```bash
+docker-compose restart
+```
+
 ### 使用 Docker 命令
 
 1. **构建镜像**
@@ -95,11 +100,56 @@ docker stop mock-llm-server
 
 ### Docker 配置说明
 
-`docker-compose.yml` 文件包含以下配置：
-- 自动重启（失败时）
-- 健康检查
-- 日志卷挂载
-- 环境变量支持
+**Dockerfile 特性**：
+- **多阶段构建**：使用builder和运行阶段分离，减小最终镜像大小
+- **非root用户**：使用appuser运行应用，提高安全性
+- **内建健康检查**：直接在镜像中集成健康检查，不依赖外部工具
+- **精确复制**：只复制必要的文件（app、config目录），优化镜像体积
+
+**docker-compose.yml 配置**：
+- **自动重启**：`restart: unless-stopped`，失败时自动重启
+- **健康检查**：每30秒检查一次，超时10秒，重试3次
+- **日志管理**：自动日志轮转，最大10MB，保留3个文件
+- **配置挂载**：支持外部配置文件挂载（只读模式）
+- **网络隔离**：使用专用网络`mock-network`，提高安全性
+- **环境变量**：支持`.env`文件和直接环境变量配置
+
+### 外部配置文件管理
+
+**挂载自定义配置文件**：
+```yaml
+# docker-compose.yml 中已配置
+volumes:
+  - ./config/responses.yaml:/app/config/responses.yaml:ro
+```
+
+**使用步骤**：
+1. 修改本地配置文件：`vim config/responses.yaml`
+2. 重启服务应用新配置：`docker-compose restart`
+3. 验证配置生效：`curl http://localhost:8000/v1/config/yaml`
+
+### 健康检查
+
+**Docker健康检查**：
+```bash
+# 检查容器状态
+docker-compose ps
+
+# 查看健康检查日志
+docker inspect mock-llm-server | grep -A 10 Health
+```
+
+**应用健康检查端点**：
+```bash
+curl http://localhost:8000/health
+```
+
+预期响应：
+```json
+{
+  "status": "healthy"
+}
+```
 
 ## 生产环境部署
 

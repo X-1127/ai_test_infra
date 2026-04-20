@@ -153,6 +153,13 @@ docker build -t mock-llm-server .
 docker run -d -p 8000:8000 --name mock-llm-server mock-llm-server
 ```
 
+**Docker特性**：
+- 多阶段构建，优化镜像大小
+- 非root用户运行，提高安全性  
+- 内建健康检查，自动监控服务状态
+- 支持外部配置文件挂载
+- 自动日志轮转（最大10MB，保留3个文件）
+
 ## 🔧 功能说明
 
 ### 1. 基础聊天功能

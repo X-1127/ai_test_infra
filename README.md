@@ -52,10 +52,23 @@ python scripts/start_server.py
 # 使用Docker Compose（推荐）
 docker-compose up -d
 
+# 查看日志
+docker-compose logs -f
+
+# 停止服务
+docker-compose down
+
 # 或使用Docker命令
 docker build -t mock-llm-server .
 docker run -d -p 8000:8000 --name mock-llm-server mock-llm-server
 ```
+
+**Docker特性**：
+- 多阶段构建，优化镜像大小
+- 非root用户运行，提高安全性
+- 内建健康检查，自动监控服务状态
+- 支持外部配置文件挂载
+- 自动日志轮转（最大10MB，保留3个文件）
 
 ## 📚 使用示例
 
