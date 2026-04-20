@@ -117,11 +117,10 @@ pytest tests/unit/test_services.py -v
 ## 📖 文档
 
 - [项目说明文档](PROJECT_GUIDE.md) - 完整的项目说明
-- [文件结构指南](FILE_STRUCTURE_GUIDE.md) - 详细的文件结构说明
 - [API文档](docs/api.md) - API接口详细说明
 - [部署指南](docs/deployment.md) - 部署和运维指南
-- [Docker部署指南](DOCKER.md) - Docker使用说明
 - [注入功能说明](docs/injection_features.md) - 延迟和故障注入功能详解
+- [YAML配置功能说明](docs/yaml_config_features.md) - YAML配置功能详解
 
 ## 🎓 学习历程
 
@@ -182,6 +181,7 @@ llm-mock-server/
 │   └── fixtures/             # 测试数据
 ├── scripts/                  # 脚本工具
 ├── docs/                     # 文档目录
+├── config/                   # 配置文件
 └── pyproject.toml           # 项目配置
 ```
 

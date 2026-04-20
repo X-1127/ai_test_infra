@@ -63,14 +63,6 @@ Thumbs.db
 *.temp
 .cache/
 
-# Docker
-.dockerignore
-
-# Documentation (internal use only)
-FILE_STRUCTURE_GUIDE.md
-REFACTORING_REPORT.md
-CLEANUP_REPORT.md
-
 # YAML Config (keep example, ignore actual config)
 config/responses.yaml
 !config/responses.yaml.example

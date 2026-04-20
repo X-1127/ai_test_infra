@@ -420,5 +420,4 @@ MOCK_RESPONSE=你的自定义响应内容
 
 - [项目说明文档](../PROJECT_GUIDE.md)
 - [API 文档](api.md)
-- [Docker 部署指南](../DOCKER.md)
 - [注入功能说明](injection_features.md)

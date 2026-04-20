@@ -41,6 +41,18 @@ http://localhost:8000
     "get_injection_config": "/v1/config/injection",
     "update_injection_config": "/v1/config/injection",
     "reset_injection_config": "/v1/config/injection/reset",
+    "get_yaml_config": "/v1/config/yaml",
+    "enable_yaml_config": "/v1/config/yaml/enable",
+    "disable_yaml_config": "/v1/config/yaml/disable",
+    "reload_yaml_config": "/v1/config/yaml/reload",
+    "validate_yaml_config": "/v1/config/yaml/validate",
+    "add_yaml_rule": "/v1/config/yaml/rules",
+    "delete_yaml_rule": "/v1/config/yaml/rules/{index}",
+    "update_yaml_rule": "/v1/config/yaml/rules/{index}",
+    "enable_yaml_rule": "/v1/config/yaml/rules/{index}/enable",
+    "disable_yaml_rule": "/v1/config/yaml/rules/{index}/disable",
+    "validate_yaml_rule": "/v1/config/yaml/rules/validate",
+    "search_yaml_rules": "/v1/config/yaml/rules/search",
     "health": "/health"
   }
 }

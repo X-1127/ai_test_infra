@@ -72,7 +72,8 @@ llm-mock-server/
 │   │   └── chat.py          # 聊天相关接口
 │   └── services/             # 业务逻辑
 │       ├── __init__.py
-│       └── mock_service.py  # 模拟服务实现
+│       ├── mock_service.py  # 模拟服务实现
+│       └── response_config_manager.py # YAML配置管理
 ├── tests/                   # 测试目录
 │   ├── unit/                # 单元测试
 │   ├── integration/         # 集成测试
@@ -84,7 +85,13 @@ llm-mock-server/
 ├── docs/                    # 文档目录
 │   ├── api.md              # API文档
 │   ├── deployment.md       # 部署文档
-│   └── injection_features.md # 注入功能说明
+│   ├── injection_features.md # 注入功能说明
+│   └── yaml_config_features.md # YAML配置功能说明
+├── config/                  # 配置文件
+│   ├── responses.yaml      # YAML回复配置
+│   ├── responses.yaml.example # 配置示例
+│   ├── test_responses.yaml # 测试配置
+│   └── test_responses.yaml.template # 测试配置模板
 ├── .env                    # 环境变量配置
 ├── .env.example            # 环境变量示例
 ├── Dockerfile              # Docker镜像构建
@@ -276,6 +283,18 @@ LOG_LEVEL=INFO
 | `/v1/config/injection` | GET | 获取注入配置 |
 | `/v1/config/injection` | PUT | 更新注入配置 |
 | `/v1/config/injection/reset` | POST | 重置注入配置 |
+| `/v1/config/yaml` | GET | 获取YAML配置 |
+| `/v1/config/yaml/enable` | PUT | 启用YAML配置 |
+| `/v1/config/yaml/disable` | PUT | 禁用YAML配置 |
+| `/v1/config/yaml/reload` | POST | 重载YAML配置 |
+| `/v1/config/yaml/validate` | POST | 验证YAML配置 |
+| `/v1/config/yaml/rules` | POST | 添加YAML规则 |
+| `/v1/config/yaml/rules/{index}` | DELETE | 删除YAML规则 |
+| `/v1/config/yaml/rules/{index}` | PUT | 更新YAML规则 |
+| `/v1/config/yaml/rules/{index}/enable` | PUT | 启用YAML规则 |
+| `/v1/config/yaml/rules/{index}/disable` | PUT | 禁用YAML规则 |
+| `/v1/config/yaml/rules/validate` | POST | 验证YAML规则 |
+| `/v1/config/yaml/rules/search` | GET | 搜索YAML规则 |
 
 ## 🎨 使用场景
 
