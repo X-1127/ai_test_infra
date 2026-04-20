@@ -1,106 +1,111 @@
-# Deployment Guide
+# 部署指南
 
-## Local Development
+## 本地开发部署
 
-### Prerequisites
+### 前置要求
 
-- Python 3.13+
-- pip
+- Python 3.13 或更高版本
+- pip 包管理器
 
-### Installation
+### 安装步骤
 
-1. Clone the repository
-2. Install dependencies:
+1. **克隆仓库**
+```bash
+git clone <repository-url>
+cd llm-mock-server
+```
+
+2. **安装依赖**
 ```bash
 pip install -e .[dev]
 ```
 
-3. Configure environment (optional):
+3. **配置环境变量（可选）**
 ```bash
 cp .env.example .env
-# Edit .env with your settings
+# 编辑 .env 文件设置你的配置
 ```
 
-4. Run the server:
+4. **启动服务器**
 ```bash
 python scripts/start_server.py
 ```
 
-Or using the batch file:
+或者使用批处理文件：
 ```bash
 scripts\start.bat
 ```
 
-### Running Tests
+### 运行测试
 
 ```bash
-# Run all tests
+# 运行所有测试
 pytest tests/ -v
 
-# Run with coverage
+# 运行带覆盖率报告的测试
 pytest tests/ --cov=app --cov-report=html
 
-# Run specific test file
+# 运行特定测试文件
 pytest tests/unit/test_services.py -v
 ```
 
-## Docker Deployment
+## Docker 部署
 
-### Using Docker Compose (Recommended)
+### 使用 Docker Compose（推荐）
 
-1. Build and start:
+1. **构建并启动服务**
 ```bash
 docker-compose up -d
 ```
 
-2. View logs:
+2. **查看日志**
 ```bash
 docker-compose logs -f
 ```
 
-3. Stop the service:
+3. **停止服务**
 ```bash
 docker-compose down
 ```
 
-### Using Docker Commands
+### 使用 Docker 命令
 
-1. Build the image:
+1. **构建镜像**
 ```bash
 docker build -t mock-llm-server .
 ```
 
-2. Run the container:
+2. **运行容器**
 ```bash
 docker run -d -p 8000:8000 \
-  -e MOCK_RESPONSE="Your custom response" \
+  -e MOCK_RESPONSE="你的自定义响应" \
   --name mock-llm-server \
   mock-llm-server
 ```
 
-3. View logs:
+3. **查看日志**
 ```bash
 docker logs -f mock-llm-server
 ```
 
-4. Stop the container:
+4. **停止容器**
 ```bash
 docker stop mock-llm-server
 ```
 
-### Docker Configuration
+### Docker 配置说明
 
-The `docker-compose.yml` file includes:
-- Automatic restart on failure
-- Health checks
-- Log volume mounting
-- Environment variable support
+`docker-compose.yml` 文件包含以下配置：
+- 自动重启（失败时）
+- 健康检查
+- 日志卷挂载
+- 环境变量支持
 
-## Production Deployment
+## 生产环境部署
 
-### Environment Variables
+### 环境变量配置
 
-Set these environment variables for production:
+为生产环境设置以下环境变量：
 
 ```bash
 APP_NAME=Mock LLM Server
@@ -108,102 +113,312 @@ APP_VERSION=1.0.0
 HOST=0.0.0.0
 PORT=8000
 DEBUG=false
-MOCK_RESPONSE=This is a mock response.
+MOCK_RESPONSE=这是一个模拟响应。
 LOG_LEVEL=INFO
 ```
 
-### Security Considerations
+### 安全考虑
 
-1. **Do not run as root**: Create a non-root user in Docker
-2. **Use HTTPS**: Add SSL/TLS termination
-3. **Rate limiting**: Enable rate limiting for production
-4. **Logging**: Configure proper log rotation
-5. **Monitoring**: Add health checks and monitoring
+1. **不要以 root 用户运行**: 在 Docker 中创建非 root 用户
+2. **使用 HTTPS**: 添加 SSL/TLS 终止
+3. **速率限制**: 为生产环境启用速率限制
+4. **日志管理**: 配置适当的日志轮转
+5. **监控**: 添加健康检查和监控
 
-### Scaling
+### 扩展性考虑
 
-For high availability, consider:
+为了实现高可用性，建议：
 
-1. **Load Balancing**: Use Nginx or cloud load balancer
-2. **Multiple Instances**: Run multiple container instances
-3. **Container Orchestration**: Use Kubernetes or Docker Swarm
-4. **Auto-scaling**: Configure based on CPU/memory usage
+1. **负载均衡**: 使用 Nginx 或云负载均衡器
+2. **多实例**: 运行多个容器实例
+3. **容器编排**: 使用 Kubernetes 或 Docker Swarm
+4. **自动扩展**: 基于 CPU/内存使用情况配置自动扩展
 
-### Monitoring
+### 监控建议
 
-Add monitoring for:
+添加以下监控指标：
 
-- Server uptime
-- Response times
-- Error rates
-- Resource usage (CPU, memory, disk)
-- Request counts
+- 服务器运行时间
+- 响应时间
+- 错误率
+- 资源使用情况（CPU、内存、磁盘）
+- 请求计数
 
-## Troubleshooting
+## 故障排查
 
-### Common Issues
+### 常见问题
 
-1. **Port already in use**:
-   - Change the `PORT` environment variable
-   - Stop the conflicting service
+1. **端口已被占用**
+   - 更改 `PORT` 环境变量
+   - 停止冲突的服务
 
-2. **Permission errors**:
-   - Check file permissions
-   - Ensure proper user rights
+2. **权限错误**
+   - 检查文件权限
+   - 确保具有适当的用户权限
 
-3. **Container not starting**:
-   - Check Docker logs: `docker logs mock-llm-server`
-   - Verify environment variables
-   - Check resource availability
+3. **容器无法启动**
+   - 查看 Docker 日志：`docker logs mock-llm-server`
+   - 验证环境变量
+   - 检查资源可用性
 
-### Health Checks
+### 健康检查
 
-The server provides a health check endpoint:
+服务器提供健康检查端点：
 
 ```bash
 curl http://localhost:8000/health
 ```
 
-Expected response:
+预期响应：
 ```json
 {
   "status": "healthy"
 }
 ```
 
-## Backup and Recovery
+## 备份和恢复
 
-### Configuration Backup
+### 配置备份
 
-Regularly backup:
-- `.env` file
-- Custom configurations
-- Test data
+定期备份以下内容：
+- `.env` 文件
+- 自定义配置
+- 测试数据
 
-### Recovery
+### 恢复步骤
 
-1. Restore configuration files
-2. Restart the service
-3. Verify health check endpoint
+1. 恢复配置文件
+2. 重启服务
+3. 验证健康检查端点
 
-## Updates and Maintenance
+## 更新和维护
 
-### Updating the Application
+### 更新应用程序
 
-1. Pull latest changes
-2. Update dependencies: `pip install -e .[dev]`
-3. Run tests: `pytest tests/`
-4. Restart the service
+1. 拉取最新代码
+2. 更新依赖：`pip install -e .[dev]`
+3. 运行测试：`pytest tests/`
+4. 重启服务
 
-### Dependency Updates
+### 依赖更新
 
 ```bash
-# Check for updates
+# 检查可用的更新
 pip list --outdated
 
-# Update specific package
+# 更新特定包
 pip install package-name --upgrade
 
-# Update all dependencies
+# 更新所有依赖
 pip install -e .[dev] --upgrade
 ```
+
+## 性能优化
+
+### 建议配置
+
+- **生产环境**: 关闭 DEBUG 模式，设置适当的日志级别
+- **高并发**: 使用多个容器实例，配置负载均衡
+- **资源限制**: 在 Docker 中设置 CPU 和内存限制
+
+### 性能测试
+
+使用延迟注入功能测试应用性能：
+
+```bash
+# 启用延迟注入
+curl -X PUT http://localhost:8000/v1/config/injection \
+  -H "Content-Type: application/json" \
+  -d '{
+    "delay": {
+      "enabled": true,
+      "min_delay_ms": 100,
+      "max_delay_ms": 500
+    }
+  }'
+```
+
+## 日志管理
+
+### 日志级别
+
+- `DEBUG`: 详细的调试信息
+- `INFO`: 一般信息
+- `WARNING`: 警告信息
+- `ERROR`: 错误信息
+- `CRITICAL`: 严重错误
+
+### 日志查看
+
+```bash
+# Docker 环境
+docker logs -f mock-llm-server
+
+# 本地环境
+# 日志输出到控制台
+```
+
+### 日志轮转
+
+在生产环境中，建议配置日志轮转以避免日志文件过大。
+
+## 网络配置
+
+### 防火墙设置
+
+确保防火墙允许以下端口：
+- `8000`: 应用端口（默认）
+
+### 反向代理配置
+
+使用 Nginx 作为反向代理的示例配置：
+
+```nginx
+server {
+    listen 80;
+    server_name your-domain.com;
+
+    location / {
+        proxy_pass http://localhost:8000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+```
+
+## CI/CD 集成
+
+### GitHub Actions 示例
+
+```yaml
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.13'
+    - name: Install dependencies
+      run: |
+        pip install -e .[dev]
+    - name: Run tests
+      run: |
+        pytest tests/ -v --cov=app
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+    - uses: actions/checkout@v2
+    - name: Build and push Docker image
+      run: |
+        docker build -t mock-llm-server .
+        # 添加推送逻辑
+```
+
+## 故障恢复
+
+### 自动重启
+
+Docker Compose 配置了自动重启策略：
+
+```yaml
+restart: unless-stopped
+```
+
+### 数据恢复
+
+如果需要恢复配置：
+
+1. 从备份恢复 `.env` 文件
+2. 重启容器
+3. 验证服务状态
+
+## 监控和告警
+
+### 建议监控指标
+
+- 请求响应时间
+- 错误率
+- CPU 使用率
+- 内存使用率
+- 磁盘使用率
+
+### 告警设置
+
+建议设置以下告警：
+- 服务器宕机
+- 响应时间过长
+- 错误率过高
+- 资源使用率超过阈值
+
+## 安全加固
+
+### 安全建议
+
+1. **定期更新依赖**: 保持依赖包最新
+2. **使用 HTTPS**: 保护 API 通信
+3. **实施速率限制**: 防止滥用
+4. **输入验证**: 验证所有输入数据
+5. **错误处理**: 不要暴露敏感信息
+
+### 环境变量保护
+
+- 不要将 `.env` 文件提交到版本控制
+- 使用密钥管理服务存储敏感信息
+- 定期轮换密钥和密码
+
+## 扩展功能
+
+### 添加新的 API 端点
+
+1. 在 `app/api/` 中创建新的路由文件
+2. 在 `app/main.py` 中注册路由
+3. 添加相应的测试用例
+4. 更新 API 文档
+
+### 自定义响应
+
+通过环境变量 `MOCK_RESPONSE` 自定义响应内容：
+
+```bash
+export MOCK_RESPONSE="你的自定义响应内容"
+```
+
+或在 `.env` 文件中设置：
+
+```bash
+MOCK_RESPONSE=你的自定义响应内容
+```
+
+## 支持和维护
+
+### 获取帮助
+
+- 查看项目文档
+- 检查 GitHub Issues
+- 提交新的 Issue
+
+### 贡献代码
+
+欢迎贡献代码、报告问题或提出建议！
+
+## 相关文档
+
+- [项目说明文档](../PROJECT_GUIDE.md)
+- [API 文档](api.md)
+- [Docker 部署指南](../DOCKER.md)
+- [注入功能说明](injection_features.md)

@@ -1,37 +1,37 @@
-# API Documentation
+# API 文档
 
-## Overview
+## 概述
 
-Mock LLM Server provides a mock implementation of the OpenAI Chat Completions API for testing purposes.
+Mock LLM Server 提供了 OpenAI 聊天完成 API 的模拟实现，专门用于测试目的。
 
-## Base URL
+## 基础 URL
 
 ```
 http://localhost:8000
 ```
 
-## Endpoints
+## API 端点
 
-### 1. Health Check
+### 1. 健康检查
 
 **GET** `/health`
 
-Check if the server is running.
+检查服务器是否正常运行。
 
-**Response:**
+**响应示例:**
 ```json
 {
   "status": "healthy"
 }
 ```
 
-### 2. Root Endpoint
+### 2. 根路径端点
 
 **GET** `/`
 
-Get server information and available endpoints.
+获取服务器信息和可用的端点列表。
 
-**Response:**
+**响应示例:**
 ```json
 {
   "status": "ok",
@@ -46,13 +46,13 @@ Get server information and available endpoints.
 }
 ```
 
-### 3. Get Injection Configuration
+### 3. 获取注入配置
 
 **GET** `/v1/config/injection`
 
-Get current delay and fault injection configuration.
+获取当前的延迟和故障注入配置。
 
-**Response:**
+**响应示例:**
 ```json
 {
   "delay": {
@@ -70,13 +70,13 @@ Get current delay and fault injection configuration.
 }
 ```
 
-### 4. Update Injection Configuration
+### 4. 更新注入配置
 
 **PUT** `/v1/config/injection`
 
-Update delay and/or fault injection configuration.
+更新延迟和/或故障注入配置。
 
-**Request Body:**
+**请求体示例:**
 ```json
 {
   "delay": {
@@ -94,19 +94,19 @@ Update delay and/or fault injection configuration.
 }
 ```
 
-**Parameters:**
-- `delay` (optional): Delay injection configuration
-  - `enabled`: Enable/disable delay injection
-  - `min_delay_ms`: Minimum delay in milliseconds
-  - `max_delay_ms`: Maximum delay in milliseconds
-- `fault` (optional): Fault injection configuration
-  - `enabled`: Enable/disable fault injection
-  - `fault_type`: Type of fault to inject ("none", "http_error", "timeout", "invalid_response", "empty_response")
-  - `http_status_code`: HTTP status code for http_error type
-  - `error_message`: Error message for http_error type
-  - `probability`: Probability of fault injection (0.0 to 1.0)
+**参数说明:**
+- `delay` (可选): 延迟注入配置
+  - `enabled`: 启用/禁用延迟注入
+  - `min_delay_ms`: 最小延迟时间（毫秒）
+  - `max_delay_ms`: 最大延迟时间（毫秒）
+- `fault` (可选): 故障注入配置
+  - `enabled`: 启用/禁用故障注入
+  - `fault_type`: 故障类型 ("none", "http_error", "timeout", "invalid_response", "empty_response")
+  - `http_status_code`: HTTP错误状态码（仅http_error类型）
+  - `error_message`: 错误消息（仅http_error类型）
+  - `probability`: 故障注入概率（0.0 到 1.0）
 
-**Response:**
+**响应示例:**
 ```json
 {
   "delay": {
@@ -124,13 +124,13 @@ Update delay and/or fault injection configuration.
 }
 ```
 
-### 5. Reset Injection Configuration
+### 5. 重置注入配置
 
 **POST** `/v1/config/injection/reset`
 
-Reset all injection configurations to default values.
+将所有注入配置重置为默认值。
 
-**Response:**
+**响应示例:**
 ```json
 {
   "delay": {
@@ -148,19 +148,19 @@ Reset all injection configurations to default values.
 }
 ```
 
-### 6. Chat Completions
+### 6. 聊天完成
 
 **POST** `/v1/chat/completions`
 
-Generate mock chat completions.
+生成模拟的聊天完成响应。
 
-**Request Body:**
+**请求体示例:**
 ```json
 {
   "messages": [
     {
       "role": "user",
-      "content": "Hello"
+      "content": "你好"
     }
   ],
   "model": "mock-model",
@@ -169,15 +169,15 @@ Generate mock chat completions.
 }
 ```
 
-**Parameters:**
-- `messages` (required): Array of message objects
-  - `role`: Message role ("system", "user", "assistant")
-  - `content`: Message content
-- `model` (optional): Model identifier (default: "mock-model")
-- `temperature` (optional): Sampling temperature (default: 1.0)
-- `max_tokens` (optional): Maximum tokens to generate (default: 100)
+**参数说明:**
+- `messages` (必需): 消息对象数组
+  - `role`: 消息角色 ("system", "user", "assistant")
+  - `content`: 消息内容
+- `model` (可选): 模型标识符（默认: "mock-model"）
+- `temperature` (可选): 采样温度（默认: 1.0）
+- `max_tokens` (可选): 最大生成token数（默认: 100）
 
-**Response:**
+**响应示例:**
 ```json
 {
   "id": "mock-1234567890",
@@ -189,7 +189,7 @@ Generate mock chat completions.
       "index": 0,
       "message": {
         "role": "assistant",
-        "content": "This is a mock response."
+        "content": "这是一个模拟响应。"
       },
       "finish_reason": "stop"
     }
@@ -197,9 +197,9 @@ Generate mock chat completions.
 }
 ```
 
-## Error Responses
+## 错误响应
 
-### 400 Bad Request
+### 400 错误请求
 
 ```json
 {
@@ -207,18 +207,18 @@ Generate mock chat completions.
 }
 ```
 
-## Configuration
+## 配置说明
 
-The server can be configured using environment variables:
+服务器可以通过环境变量进行配置：
 
-- `MOCK_RESPONSE`: Custom mock response text
-- `PORT`: Server port (default: 8000)
-- `HOST`: Server host (default: 0.0.0.0)
-- `DEBUG`: Enable debug mode (default: false)
+- `MOCK_RESPONSE`: 自定义模拟响应文本
+- `PORT`: 服务器端口（默认: 8000）
+- `HOST`: 服务器主机（默认: 0.0.0.0）
+- `DEBUG`: 启用调试模式（默认: false）
 
-## Example Usage
+## 使用示例
 
-### Basic Chat Completion
+### 基础聊天完成
 
 #### cURL
 
@@ -227,7 +227,7 @@ curl -X POST http://localhost:8000/v1/chat/completions \
   -H "Content-Type: application/json" \
   -d '{
     "messages": [
-      {"role": "user", "content": "Hello"}
+      {"role": "user", "content": "你好"}
     ]
   }'
 ```
@@ -241,7 +241,7 @@ response = httpx.post(
     "http://localhost:8000/v1/chat/completions",
     json={
         "messages": [
-            {"role": "user", "content": "Hello"}
+            {"role": "user", "content": "你好"}
         ]
     }
 )
@@ -259,7 +259,7 @@ fetch('http://localhost:8000/v1/chat/completions', {
   },
   body: JSON.stringify({
     messages: [
-      { role: 'user', content: 'Hello' }
+      { role: 'user', content: '你好' }
     ]
   })
 })
@@ -267,9 +267,9 @@ fetch('http://localhost:8000/v1/chat/completions', {
   .then(data => console.log(data));
 ```
 
-### Delay Injection
+### 延迟注入
 
-#### Enable Delay Injection
+#### 启用延迟注入
 
 ```bash
 curl -X PUT http://localhost:8000/v1/config/injection \
@@ -283,13 +283,13 @@ curl -X PUT http://localhost:8000/v1/config/injection \
   }'
 ```
 
-#### Python Example with Delay
+#### Python 延迟示例
 
 ```python
 import httpx
 import time
 
-# Enable delay injection
+# 启用延迟注入
 httpx.put(
     "http://localhost:8000/v1/config/injection",
     json={
@@ -301,25 +301,25 @@ httpx.put(
     }
 )
 
-# Make request with delay
+# 发送带延迟的请求
 start_time = time.time()
 response = httpx.post(
     "http://localhost:8000/v1/chat/completions",
     json={
         "messages": [
-            {"role": "user", "content": "Hello"}
+            {"role": "user", "content": "你好"}
         ]
     }
 )
 end_time = time.time()
 
-print(f"Response: {response.json()}")
-print(f"Delay: {(end_time - start_time) * 1000:.0f}ms")
+print(f"响应: {response.json()}")
+print(f"延迟: {(end_time - start_time) * 1000:.0f}ms")
 ```
 
-### Fault Injection
+### 故障注入
 
-#### Enable HTTP Error Fault
+#### 启用 HTTP 错误故障
 
 ```bash
 curl -X PUT http://localhost:8000/v1/config/injection \
@@ -329,13 +329,13 @@ curl -X PUT http://localhost:8000/v1/config/injection \
       "enabled": true,
       "fault_type": "http_error",
       "http_status_code": 503,
-      "error_message": "Service unavailable",
+      "error_message": "服务不可用",
       "probability": 1.0
     }
   }'
 ```
 
-#### Enable Timeout Fault
+#### 启用超时故障
 
 ```bash
 curl -X PUT http://localhost:8000/v1/config/injection \
@@ -349,7 +349,7 @@ curl -X PUT http://localhost:8000/v1/config/injection \
   }'
 ```
 
-#### Enable Invalid Response Fault
+#### 启用无效响应故障
 
 ```bash
 curl -X PUT http://localhost:8000/v1/config/injection \
@@ -363,7 +363,7 @@ curl -X PUT http://localhost:8000/v1/config/injection \
   }'
 ```
 
-#### Enable Empty Response Fault
+#### 启用空响应故障
 
 ```bash
 curl -X PUT http://localhost:8000/v1/config/injection \
@@ -377,7 +377,7 @@ curl -X PUT http://localhost:8000/v1/config/injection \
   }'
 ```
 
-### Combined Delay and Fault Injection
+### 组合延迟和故障注入
 
 ```bash
 curl -X PUT http://localhost:8000/v1/config/injection \
@@ -392,25 +392,25 @@ curl -X PUT http://localhost:8000/v1/config/injection \
       "enabled": true,
       "fault_type": "http_error",
       "http_status_code": 500,
-      "error_message": "Internal server error",
+      "error_message": "内部服务器错误",
       "probability": 0.3
     }
   }'
 ```
 
-### Reset Configuration
+### 重置配置
 
 ```bash
 curl -X POST http://localhost:8000/v1/config/injection/reset
 ```
 
-### Python Testing with Fault Injection
+### Python 故障注入测试
 
 ```python
 import httpx
 import random
 
-# Configure fault injection with 30% probability
+# 配置故障注入，概率为30%
 httpx.put(
     "http://localhost:8000/v1/config/injection",
     json={
@@ -418,24 +418,59 @@ httpx.put(
             "enabled": True,
             "fault_type": "http_error",
             "http_status_code": 503,
-            "error_message": "Service unavailable",
+            "error_message": "服务不可用",
             "probability": 0.3
         }
     }
 )
 
-# Make multiple requests to test fault handling
+# 发送多个请求测试故障处理
 for i in range(10):
     try:
         response = httpx.post(
             "http://localhost:8000/v1/chat/completions",
             json={
                 "messages": [
-                    {"role": "user", "content": f"Request {i+1}"}
+                    {"role": "user", "content": f"请求 {i+1}"}
                 ]
             }
         )
-        print(f"Request {i+1}: Success - {response.json()}")
+        print(f"请求 {i+1}: 成功 - {response.json()}")
     except httpx.HTTPStatusError as e:
-        print(f"Request {i+1}: Failed - {e.response.status_code} - {e.response.text}")
+        print(f"请求 {i+1}: 失败 - {e.response.status_code} - {e.response.text}")
 ```
+
+## 故障类型详解
+
+### HTTP 错误 (http_error)
+- 返回指定的 HTTP 状态码
+- 可自定义错误消息
+- 用于测试 HTTP 错误处理
+
+### 超时 (timeout)
+- 模拟长时间等待
+- 返回 504 Gateway Timeout
+- 用于测试超时处理
+
+### 无效响应 (invalid_response)
+- 返回不符合 API 规范的响应
+- 用于测试响应解析错误处理
+
+### 空响应 (empty_response)
+- 返回空的 choices 数组
+- 用于测试空响应处理
+
+## 最佳实践
+
+1. **渐进式测试**: 从低延迟和低故障概率开始，逐步增加
+2. **场景化测试**: 模拟真实的网络条件和错误场景
+3. **监控和日志**: 记录注入的延迟和故障，便于分析
+4. **重置配置**: 测试完成后记得重置配置
+5. **组合测试**: 同时测试延迟和故障，模拟真实复杂场景
+
+## 注意事项
+
+- 延迟时间在 min_delay_ms 和 max_delay_ms 之间随机生成
+- 故障注入基于概率，不是每次请求都会触发
+- 超时故障会等待30秒后返回504错误
+- 建议在测试环境中使用，避免影响生产环境

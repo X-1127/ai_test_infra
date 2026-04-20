@@ -1,48 +1,204 @@
-# 一个测试开发工程师的 AI 学习日记
-  
-这个仓库是笔者学习AI应用测试的产物，里面有代码、有踩坑记录、有每天的更新日志。
+# LLM Mock Server - AI应用测试工具
 
-## 为啥要搞这个？
+一个测试开发工程师学习AI应用测试的实践项目，包含完整的Mock Server实现、测试用例和开发日志。
 
- 笔者想试试：**一个测试开发工程师，能不能自己动手玩明白 Agent 和 RAG，顺便写个测试工具出来**。
+## 🎯 项目简介
 
-## 关于那些“AI 项目”
+本项目是一个功能完整的LLM模拟服务器，专为测试AI应用而设计。它提供了与OpenAI API兼容的接口，支持延迟注入和故障注入功能，帮助开发者验证AI应用在各种场景下的行为。
 
-笔者之前做过两个 Agent 相关的demo，后续应该会在此仓库上传Mock Server模拟的版本。
+### 核心功能
 
-### 一个旅行助手
-笔者代码能力还不足以“手搓”agent，于是在学习了一个 LangGraph 的多智能体教程后：
-- 搞懂了agent怎么调用 LLM、怎么调工具
-- 搞懂了一个多agent的项目大概为什么要那样设计
-- 在LangGraph上实现了一个简单的多智能体旅行规划应用，能够完成机票查询、酒店预订及行程邮件生成全流程任务编排
-- 计划把我的 Mock Server 塞进去，模拟各种异常（超时、报错、卡死）
-- 计划写几个 pytest 用例，确保它不会随便崩溃
+- ✅ **OpenAI API兼容**: 完全兼容OpenAI聊天完成接口格式
+- ✅ **延迟注入**: 模拟网络延迟，测试应用响应时间和超时处理
+- ✅ **故障注入**: 模拟HTTP错误、超时、无效响应等多种错误场景
+- ✅ **灵活配置**: 支持环境变量和运行时配置
+- ✅ **完整测试**: 包含单元测试和集成测试
+- ✅ **Docker支持**: 提供Docker和Docker Compose部署方案
 
-### 一个RAG 问答系统
-笔者在旅行助手的demo完成后，被RAG相关的内容吸引，决定也写一个RAG问答，于是：
-- 从零部署 Ollama 本地模型、搭建 Qdrant 向量库，并接入 了Snowflake Embedding
-- 实现了一套完整的 RAG 问答流程，能够根据文档切片完成检索与生成
-- 计划写一个 eval.py，系统评估不同切片策略的效果，看准确率最高能到多少
-- 计划增加更多鲁棒性测试（如空文档、超长上下文），确保流程不轻易崩溃
+## 🚀 快速开始
 
-**说白了**：就是想给之前做的这两个“玩具”做测试才决定写这个Mock Server。
+### 环境要求
 
+- Python 3.13+
+- pip
 
-## 关于 AI 辅助开发
+### 本地安装
 
-笔者要坦率承认 Mock Server 的核心代码是用Trae生成的。  
-毕竟——**测试工程师的价值是设计场景、验证行为、保证质量，而不是比谁手写代码快**。  
+```bash
+# 1. 克隆仓库
+git clone <repository-url>
+cd llm-mock-server
 
-## 这个仓库想让你看到什么
+# 2. 创建虚拟环境
+python -m venv venv
+source venv/bin/activate  # Linux/Mac
+# 或
+venv\Scripts\activate  # Windows
 
-- 一个愿意学新东西、会借力 AI 的测试开发工程师
-- 一个每天记日志、会复盘、有真实卡点记录的学习过程
-- 一个虽然不完美但能跑的测试工具（Mock Server）
+# 3. 安装依赖
+pip install -e .[dev]
 
+# 4. 配置环境变量（可选）
+cp .env.example .env
+# 编辑 .env 文件设置你的配置
 
-## 最后一句
-  
-感谢你看到这里。   
-如果想找乐子就翻翻 [LOG.md](LOG.md).
+# 5. 启动服务器
+python scripts/start_server.py
+```
 
-—— XY，2026.04
+### Docker部署
+
+```bash
+# 使用Docker Compose（推荐）
+docker-compose up -d
+
+# 或使用Docker命令
+docker build -t mock-llm-server .
+docker run -d -p 8000:8000 --name mock-llm-server mock-llm-server
+```
+
+## 📚 使用示例
+
+### 基础聊天请求
+
+```bash
+curl -X POST http://localhost:8000/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -d '{
+    "messages": [
+      {"role": "user", "content": "你好"}
+    ]
+  }'
+```
+
+### 启用延迟注入
+
+```bash
+curl -X PUT http://localhost:8000/v1/config/injection \
+  -H "Content-Type: application/json" \
+  -d '{
+    "delay": {
+      "enabled": true,
+      "min_delay_ms": 100,
+      "max_delay_ms": 500
+    }
+  }'
+```
+
+### 启用故障注入
+
+```bash
+curl -X PUT http://localhost:8000/v1/config/injection \
+  -H "Content-Type: application/json" \
+  -d '{
+    "fault": {
+      "enabled": true,
+      "fault_type": "http_error",
+      "http_status_code": 503,
+      "error_message": "服务不可用",
+      "probability": 0.5
+    }
+  }'
+```
+
+## 🧪 运行测试
+
+```bash
+# 运行所有测试
+pytest tests/ -v
+
+# 运行带覆盖率报告的测试
+pytest tests/ --cov=app --cov-report=html
+
+# 运行特定测试文件
+pytest tests/unit/test_services.py -v
+```
+
+## 📖 文档
+
+- [项目说明文档](PROJECT_GUIDE.md) - 完整的项目说明
+- [文件结构指南](FILE_STRUCTURE_GUIDE.md) - 详细的文件结构说明
+- [API文档](docs/api.md) - API接口详细说明
+- [部署指南](docs/deployment.md) - 部署和运维指南
+- [Docker部署指南](DOCKER.md) - Docker使用说明
+- [注入功能说明](docs/injection_features.md) - 延迟和故障注入功能详解
+
+## 🎓 学习历程
+
+### 项目背景
+
+作为一个测试开发工程师，我想探索：
+- 一个测试开发工程师能否自己动手理解和实现Agent和RAG
+- 如何为AI应用设计有效的测试工具
+- 如何使用AI辅助开发提高效率
+
+### 相关项目
+
+#### 1. 多智能体旅行规划助手
+基于LangGraph实现的多智能体系统，能够完成：
+- 机票查询
+- 酒店预订
+- 行程邮件生成
+- 全流程任务编排
+
+**测试计划**：
+- 使用Mock Server模拟各种异常（超时、报错、卡死）
+- 编写pytest用例确保系统稳定性
+
+#### 2. RAG问答系统
+完整的RAG问答流程实现：
+- Ollama本地模型部署
+- Qdrant向量库搭建
+- Snowflake Embedding接入
+- 文档切片检索与生成
+
+**测试计划**：
+- 系统评估不同切片策略的效果
+- 增加鲁棒性测试（空文档、超长上下文）
+
+## 🛠️ 技术栈
+
+| 技术 | 版本 | 用途 |
+|------|------|------|
+| Python | 3.13+ | 编程语言 |
+| FastAPI | 0.115.0+ | Web框架 |
+| Pydantic | 2.7.0+ | 数据验证 |
+| Uvicorn | 0.30.0+ | ASGI服务器 |
+| Pytest | 8.2.0+ | 测试框架 |
+
+## 📊 项目结构
+
+```
+llm-mock-server/
+├── app/                      # 应用主目录
+│   ├── api/                  # API路由
+│   ├── services/             # 业务逻辑
+│   ├── config.py             # 配置管理
+│   ├── models.py             # 数据模型
+│   └── main.py               # 应用入口
+├── tests/                    # 测试目录
+│   ├── unit/                 # 单元测试
+│   ├── integration/          # 集成测试
+│   └── fixtures/             # 测试数据
+├── scripts/                  # 脚本工具
+├── docs/                     # 文档目录
+└── pyproject.toml           # 项目配置
+```
+
+## 🤝 贡献
+
+欢迎贡献代码、报告问题或提出建议！
+
+## 📝 开发日志
+
+详细的开发日志请查看 [LOG.md](LOG.md)
+
+## 📄 许可证
+
+本项目采用 MIT 许可证
+
+---
+
+**作者**: XY  
+**日期**: 2026.04  
+**项目状态**: 活跃开发中
