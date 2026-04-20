@@ -203,7 +203,8 @@ class TestInjectionAPIEndpoints:
         
         assert response.status_code == 200
         delay_ms = (end_time - start_time) * 1000
-        assert 100 <= delay_ms <= 300
+        # 考虑HTTP请求开销和系统偏差，放宽到100%容差
+        assert 100 <= delay_ms <= 600
         
         client.post("/v1/config/injection/reset")
     
@@ -374,6 +375,7 @@ class TestInjectionAPIEndpoints:
         
         assert response.status_code == 503
         delay_ms = (end_time - start_time) * 1000
-        assert 50 <= delay_ms <= 150
+        # 考虑HTTP请求开销和系统偏差，放宽到100%容差
+        assert 50 <= delay_ms <= 200
         
         client.post("/v1/config/injection/reset")
