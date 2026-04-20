@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 from pydantic import BaseModel, Field
 
 
@@ -70,3 +70,21 @@ class ConfigUpdateRequest(BaseModel):
 class ConfigResponse(BaseModel):
     delay: DelayConfig
     fault: FaultConfig
+
+
+class ResponseRule(BaseModel):
+    trigger: str
+    response: str
+    match_type: str = Field(default="contains", pattern="^(exact|contains|regex)$")
+    enabled: bool = True
+
+
+class ResponseConfig(BaseModel):
+    default_response: str = "这是一个模拟响应。"
+    rules: List[ResponseRule] = []
+    metadata: Dict[str, Any] = {}
+
+
+class YAMLConfigStatus(BaseModel):
+    enabled: bool
+    config: ResponseConfig

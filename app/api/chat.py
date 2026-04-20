@@ -1,6 +1,7 @@
 import time
 import random
 import asyncio
+from typing import Optional
 from fastapi import APIRouter, HTTPException, Response
 from app.models import (
     ChatCompletionRequest,
@@ -8,7 +9,10 @@ from app.models import (
     Choice,
     ChoiceMessage,
     ConfigUpdateRequest,
-    ConfigResponse
+    ConfigResponse,
+    ResponseRule,
+    ResponseConfig,
+    YAMLConfigStatus
 )
 from app.services.mock_service import MockService
 
@@ -42,7 +46,12 @@ async def chat_completions(request: ChatCompletionRequest):
             )
     
     timestamp = int(time.time())
-    mock_response_content = mock_service.get_mock_response()
+    
+    if mock_service.get_use_yaml_config() and request.messages:
+        last_message = request.messages[-1]
+        mock_response_content = mock_service.get_mock_response(last_message.content)
+    else:
+        mock_response_content = mock_service.get_mock_response()
     
     response = ChatCompletionResponse(
         id=f"mock-{timestamp}",
@@ -91,3 +100,136 @@ async def reset_injection_config():
         delay=mock_service.get_delay_config(),
         fault=mock_service.get_fault_config()
     )
+
+
+@router.get("/v1/config/yaml", response_model=YAMLConfigStatus)
+async def get_yaml_config():
+    config = mock_service.get_yaml_config()
+    return YAMLConfigStatus(
+        enabled=mock_service.get_use_yaml_config(),
+        config=config.model_dump()
+    )
+
+
+@router.put("/v1/config/yaml/enable")
+async def enable_yaml_config():
+    mock_service.set_use_yaml_config(True)
+    config = mock_service.get_yaml_config()
+    return YAMLConfigStatus(
+        enabled=True,
+        config=config.model_dump()
+    )
+
+
+@router.put("/v1/config/yaml/disable")
+async def disable_yaml_config():
+    mock_service.set_use_yaml_config(False)
+    config = mock_service.get_yaml_config()
+    return YAMLConfigStatus(
+        enabled=False,
+        config=config.model_dump()
+    )
+
+
+@router.post("/v1/config/yaml/reload")
+async def reload_yaml_config():
+    mock_service.reload_yaml_config()
+    config = mock_service.get_yaml_config()
+    return YAMLConfigStatus(
+        enabled=mock_service.get_use_yaml_config(),
+        config=config.model_dump()
+    )
+
+
+@router.post("/v1/config/yaml/rules")
+async def add_yaml_rule(rule: ResponseRule):
+    mock_service.response_config_manager.add_rule(rule)
+    config = mock_service.get_yaml_config()
+    return YAMLConfigStatus(
+        enabled=mock_service.get_use_yaml_config(),
+        config=config.model_dump()
+    )
+
+
+@router.delete("/v1/config/yaml/rules/{index}")
+async def delete_yaml_rule(index: int):
+    success = mock_service.response_config_manager.remove_rule(index)
+    if not success:
+        raise HTTPException(status_code=404, detail="Rule not found")
+    config = mock_service.get_yaml_config()
+    return YAMLConfigStatus(
+        enabled=mock_service.get_use_yaml_config(),
+        config=config.model_dump()
+    )
+
+
+@router.put("/v1/config/yaml/rules/{index}")
+async def update_yaml_rule(index: int, rule: ResponseRule):
+    success = mock_service.response_config_manager.update_rule(index, rule)
+    if not success:
+        raise HTTPException(status_code=404, detail="Rule not found")
+    config = mock_service.get_yaml_config()
+    return YAMLConfigStatus(
+        enabled=mock_service.get_use_yaml_config(),
+        config=config.model_dump()
+    )
+
+
+@router.put("/v1/config/yaml/rules/{index}/enable")
+async def enable_yaml_rule(index: int):
+    success = mock_service.response_config_manager.enable_rule(index, True)
+    if not success:
+        raise HTTPException(status_code=404, detail="Rule not found")
+    config = mock_service.get_yaml_config()
+    return YAMLConfigStatus(
+        enabled=mock_service.get_use_yaml_config(),
+        config=config.model_dump()
+    )
+
+
+@router.put("/v1/config/yaml/rules/{index}/disable")
+async def disable_yaml_rule(index: int):
+    success = mock_service.response_config_manager.enable_rule(index, False)
+    if not success:
+        raise HTTPException(status_code=404, detail="Rule not found")
+    config = mock_service.get_yaml_config()
+    return YAMLConfigStatus(
+        enabled=mock_service.get_use_yaml_config(),
+        config=config.model_dump()
+    )
+
+
+@router.post("/v1/config/yaml/validate")
+async def validate_yaml_config(config_data: dict):
+    try:
+        from app.services.response_config_manager import ResponseConfigManager
+        manager = ResponseConfigManager()
+        
+        if manager._validate_config(config_data):
+            return {"valid": True, "message": "配置验证通过"}
+        else:
+            return {"valid": False, "message": "配置验证失败"}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"配置验证错误: {str(e)}")
+
+
+@router.post("/v1/config/yaml/rules/validate")
+async def validate_yaml_rule(rule: ResponseRule):
+    try:
+        is_valid, message = mock_service.response_config_manager.validate_rule(rule)
+        
+        if is_valid:
+            return {"valid": True, "message": "规则验证通过"}
+        else:
+            return {"valid": False, "message": message}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"规则验证错误: {str(e)}")
+
+
+@router.get("/v1/config/yaml/rules/search")
+async def search_yaml_rules(keyword: str, match_type: Optional[str] = None):
+    try:
+        results = mock_service.response_config_manager.search_rules(keyword, match_type)
+        return {"results": results, "count": len(results)}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"规则搜索错误: {str(e)}")

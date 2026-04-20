@@ -1,0 +1,40 @@
+# 测试配置模板
+# 每个测试前会从这个模板恢复测试配置
+
+responses:
+  default_response: "这是一个测试响应。"
+  rules:
+    # 测试规则1：精确匹配
+    - trigger: "你好"
+      response: "你好！有什么可以帮助你的吗？"
+      match_type: "exact"
+      enabled: true
+    
+    # 测试规则2：包含匹配
+    - trigger: "天气"
+      response: "今天天气不错，适合出去走走。"
+      match_type: "contains"
+      enabled: true
+    
+    # 测试规则3：正则匹配
+    - trigger: ".*错误.*"
+      response: "抱歉，发生了错误。"
+      match_type: "regex"
+      enabled: true
+    
+    # 测试规则4：包含匹配
+    - trigger: "帮助"
+      response: "我可以帮助你测试AI应用的功能。"
+      match_type: "contains"
+      enabled: true
+    
+    # 测试规则5：精确匹配
+    - trigger: "再见"
+      response: "再见！祝你有美好的一天。"
+      match_type: "exact"
+      enabled: true
+
+metadata:
+  version: "1.0.0"
+  description: "测试专用配置"
+  test_only: true

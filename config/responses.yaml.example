@@ -1,0 +1,44 @@
+# YAML配置预设回复示例文件
+# 复制此文件为 responses.yaml 并根据需要修改
+
+responses:
+  # 默认回复（当没有匹配到任何规则时使用）
+  default_response: "这是一个模拟响应。"
+
+  # 预设回复规则列表
+  rules:
+    # 规则1：精确匹配
+    - trigger: "你好"
+      response: "你好！有什么可以帮助你的吗？"
+      match_type: "exact"
+      enabled: true
+
+    # 规则2：包含匹配
+    - trigger: "天气"
+      response: "今天天气不错，适合出去走走。"
+      match_type: "contains"
+      enabled: true
+
+    # 规则3：正则匹配
+    - trigger: ".*错误.*"
+      response: "抱歉，发生了错误。"
+      match_type: "regex"
+      enabled: true
+
+    # 规则4：包含匹配
+    - trigger: "帮助"
+      response: "我可以帮助你测试AI应用的功能。"
+      match_type: "contains"
+      enabled: true
+
+    # 规则5：精确匹配
+    - trigger: "再见"
+      response: "再见！祝你有美好的一天。"
+      match_type: "exact"
+      enabled: true
+
+# 配置元数据
+metadata:
+  version: "1.0.0"
+  description: "Mock LLM Server 预设回复配置"
+  last_updated: "2026-04-20"
