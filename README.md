@@ -9,10 +9,13 @@
 ### 核心功能
 
 - ✅ **OpenAI API兼容**: 完全兼容OpenAI聊天完成接口格式
+- ✅ **流式响应**: 支持SSE流式输出，模拟真实LLM的打字效果
 - ✅ **延迟注入**: 模拟网络延迟，测试应用响应时间和超时处理
 - ✅ **故障注入**: 模拟HTTP错误、超时、无效响应等多种错误场景
+- ✅ **日志系统**: 完整的请求、错误和访问日志记录与查询
 - ✅ **灵活配置**: 支持环境变量和运行时配置
 - ✅ **完整测试**: 包含单元测试和集成测试
+- ✅ **环境隔离**: 测试环境与生产环境完全隔离
 - ✅ **Docker支持**: 提供Docker和Docker Compose部署方案
 
 ## 🚀 快速开始
@@ -82,6 +85,32 @@ curl -X POST http://localhost:8000/v1/chat/completions \
       {"role": "user", "content": "你好"}
     ]
   }'
+```
+
+### 流式响应请求
+
+```bash
+curl -X POST http://localhost:8000/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -d '{
+    "messages": [
+      {"role": "user", "content": "你好"}
+    ],
+    "stream": true
+  }'
+```
+
+### 查询日志
+
+```bash
+# 获取所有日志
+curl http://localhost:8000/v1/logs
+
+# 获取请求日志
+curl "http://localhost:8000/v1/logs?log_type=request"
+
+# 获取错误日志，限制返回10条
+curl "http://localhost:8000/v1/logs?log_type=error&limit=10"
 ```
 
 ### 启用延迟注入

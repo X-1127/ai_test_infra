@@ -1,8 +1,8 @@
-# 延迟注入和故障注入功能详解
+# 延迟注入、故障注入、流式响应和日志系统详解
 
 ## 功能概述
 
-Mock LLM Server 提供了强大的延迟注入和故障注入功能，用于测试应用程序在各种网络条件和错误情况下的行为。这些功能可以帮助开发者验证应用的健壮性和错误处理能力。
+Mock LLM Server 提供了强大的延迟注入、故障注入、流式响应和日志系统功能，用于测试应用程序在各种网络条件、错误情况下的行为，以及监控和记录系统运行状态。这些功能可以帮助开发者验证应用的健壮性、错误处理能力和性能表现。
 
 ## 核心特性
 
@@ -55,6 +55,38 @@ Mock LLM Server 提供了强大的延迟注入和故障注入功能，用于测�
 - 支持多种故障类型
 - 可自定义 HTTP 状态码和错误消息
 - 支持实时配置更新
+
+### 3. 流式响应 (Streaming Response)
+
+模拟真实LLM的流式输出效果，使用Server-Sent Events (SSE)协议逐字符或逐词发送响应。
+
+**功能特点：**
+- 支持SSE流式输出
+- 逐字符发送响应内容
+- 模拟真实LLM的打字效果
+- 完全兼容OpenAI流式响应格式
+
+**使用场景：**
+- 测试客户端对流式响应的处理能力
+- 验证流式数据的正确解析
+- 模拟真实LLM的响应体验
+- 测试流式连接的稳定性
+
+### 4. 日志系统 (Logging System)
+
+完整的请求、错误和访问日志记录与查询系统。
+
+**功能特点：**
+- 记录所有API请求和响应
+- 记录系统错误和异常
+- 支持日志类型过滤
+- 支持分页查询
+- 测试环境与生产环境日志隔离
+
+**日志类型：**
+- **请求日志**: 记录API请求的详细信息
+- **错误日志**: 记录系统错误和异常
+- **访问日志**: 记录访问统计信息
 
 ## API 端点说明
 
@@ -114,6 +146,86 @@ POST /v1/config/injection/reset
 ```
 
 将所有注入配置重置为默认值。
+
+### 流式响应聊天
+```
+POST /v1/chat/completions
+```
+
+发送流式响应请求。
+
+**请求示例：**
+```json
+{
+  "messages": [
+    {"role": "user", "content": "你好"}
+  ],
+  "model": "mock-model",
+  "temperature": 1.0,
+  "max_tokens": 100,
+  "stream": true
+}
+```
+
+**响应示例：**
+```
+data: {"id": "mock-1234567890", "object": "chat.completion.chunk", "created": 1234567890, "model": "mock-model", "choices": [{"index": 0, "delta": {"role": "assistant"}, "finish_reason": null}]}
+
+data: {"id": "mock-1234567890", "object": "chat.completion.chunk", "created": 1234567890, "model": "mock-model", "choices": [{"index": 0, "delta": {"content": "你"}, "finish_reason": null}]}
+
+data: {"id": "mock-1234567890", "object": "chat.completion.chunk", "created": 1234567890, "model": "mock-model", "choices": [{"index": 0, "delta": {"content": "好"}, "finish_reason": null}]}
+
+...
+
+data: [DONE]
+```
+
+### 获取日志
+```
+GET /v1/logs
+```
+
+获取日志记录，支持分页和类型过滤。
+
+**查询参数：**
+- `log_type` (可选): 日志类型 ("request", "error", "access")
+- `limit` (可选): 返回记录数量限制（默认: 100）
+- `offset` (可选): 起始位置偏移量（默认: 0）
+
+**响应示例：**
+```json
+{
+  "logs": [
+    {
+      "timestamp": "2026-04-21T10:30:00",
+      "log_type": "request",
+      "method": "POST",
+      "path": "/v1/chat/completions",
+      "status_code": 200,
+      "duration_ms": 150,
+      "client_ip": "127.0.0.1",
+      "user_agent": "python-requests/2.31.0",
+      "body": "Response: 10 chars"
+    }
+  ],
+  "count": 1
+}
+```
+
+### 清空日志
+```
+POST /v1/logs/clear
+```
+
+清空所有日志记录。
+
+**响应示例：**
+```json
+{
+  "message": "日志已清空",
+  "count": 0
+}
+```
 
 ## 使用示例
 

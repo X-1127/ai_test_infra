@@ -49,6 +49,45 @@ pytest tests/ --cov=app --cov-report=html
 pytest tests/unit/test_services.py -v
 ```
 
+## 测试环境配置
+
+### 环境隔离
+
+项目实现了测试环境与生产环境的完全隔离，确保测试不会污染生产数据。
+
+#### 环境变量
+
+- `TESTING`: 测试模式标识（默认: false）
+  - 设置为 `1` 或 `true` 启用测试模式
+  - 测试模式会使用独立的日志目录 `logs_test/`
+
+#### 日志目录隔离
+
+- **生产环境**: `logs/` 目录
+- **测试环境**: `logs_test/` 目录
+
+#### 测试文件配置
+
+在测试文件中设置环境变量（必须在导入 app 之前）：
+
+```python
+import os
+
+# 必须在导入app之前设置环境变量
+os.environ['TESTING'] = '1'
+
+from app.main import app
+```
+
+#### .gitignore 配置
+
+```gitignore
+# Logs
+logs/
+logs_test/
+*.log
+```
+
 ## Docker 部署
 
 ### 使用 Docker Compose（推荐）
@@ -165,6 +204,7 @@ PORT=8000
 DEBUG=false
 MOCK_RESPONSE=这是一个模拟响应。
 LOG_LEVEL=INFO
+TESTING=false
 ```
 
 ### 安全考虑
@@ -174,6 +214,7 @@ LOG_LEVEL=INFO
 3. **速率限制**: 为生产环境启用速率限制
 4. **日志管理**: 配置适当的日志轮转
 5. **监控**: 添加健康检查和监控
+6. **环境隔离**: 确保测试和生产环境完全隔离
 
 ### 扩展性考虑
 
@@ -193,6 +234,7 @@ LOG_LEVEL=INFO
 - 错误率
 - 资源使用情况（CPU、内存、磁盘）
 - 请求计数
+- 日志统计信息
 
 ## 故障排查
 
@@ -210,6 +252,11 @@ LOG_LEVEL=INFO
    - 查看 Docker 日志：`docker logs mock-llm-server`
    - 验证环境变量
    - 检查资源可用性
+
+4. **测试环境污染**
+   - 确认 `TESTING` 环境变量设置正确
+   - 检查日志是否写入 `logs_test/` 目录
+   - 验证 `.gitignore` 包含 `logs_test/`
 
 ### 健康检查
 
@@ -234,12 +281,14 @@ curl http://localhost:8000/health
 - `.env` 文件
 - 自定义配置
 - 测试数据
+- 生产日志（logs/ 目录）
 
 ### 恢复步骤
 
 1. 恢复配置文件
 2. 重启服务
 3. 验证健康检查端点
+4. 检查日志目录是否正确
 
 ## 更新和维护
 
@@ -270,6 +319,7 @@ pip install -e .[dev] --upgrade
 - **生产环境**: 关闭 DEBUG 模式，设置适当的日志级别
 - **高并发**: 使用多个容器实例，配置负载均衡
 - **资源限制**: 在 Docker 中设置 CPU 和内存限制
+- **日志管理**: 配置日志轮转，避免日志文件过大
 
 ### 性能测试
 
@@ -305,12 +355,27 @@ curl -X PUT http://localhost:8000/v1/config/injection \
 docker logs -f mock-llm-server
 
 # 本地环境
-# 日志输出到控制台
+# 日志输出到控制台和文件
 ```
+
+### 日志目录
+
+- **生产环境**: `logs/` 目录
+  - `request.log`: 请求日志
+  - `error.log`: 错误日志
+  - `access.log`: 访问日志
+
+- **测试环境**: `logs_test/` 目录
+  - 与生产环境相同的文件结构
+  - 完全独立，避免污染
 
 ### 日志轮转
 
 在生产环境中，建议配置日志轮转以避免日志文件过大。
+
+- 单个日志文件最大 10MB
+- 保留 5 个备份文件
+- 自动轮转机制
 
 ## 网络配置
 
@@ -396,6 +461,7 @@ restart: unless-stopped
 1. 从备份恢复 `.env` 文件
 2. 重启容器
 3. 验证服务状态
+4. 检查日志目录是否正确
 
 ## 监控和告警
 
@@ -406,6 +472,7 @@ restart: unless-stopped
 - CPU 使用率
 - 内存使用率
 - 磁盘使用率
+- 日志统计信息
 
 ### 告警设置
 
@@ -414,6 +481,7 @@ restart: unless-stopped
 - 响应时间过长
 - 错误率过高
 - 资源使用率超过阈值
+- 日志错误数量异常增加
 
 ## 安全加固
 
@@ -424,12 +492,14 @@ restart: unless-stopped
 3. **实施速率限制**: 防止滥用
 4. **输入验证**: 验证所有输入数据
 5. **错误处理**: 不要暴露敏感信息
+6. **环境隔离**: 确保测试和生产环境完全分离
 
 ### 环境变量保护
 
 - 不要将 `.env` 文件提交到版本控制
 - 使用密钥管理服务存储敏感信息
 - 定期轮换密钥和密码
+- 区分测试和生产环境变量
 
 ## 扩展功能
 
@@ -471,3 +541,7 @@ MOCK_RESPONSE=你的自定义响应内容
 - [项目说明文档](../PROJECT_GUIDE.md)
 - [API 文档](api.md)
 - [注入功能说明](injection_features.md)
+- [性能分析](performance_analysis.md)
+- [性能指南](performance_guide.md)
+- [测试系统](test_system.md)
+- [YAML配置功能](yaml_config_features.md)

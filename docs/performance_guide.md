@@ -130,7 +130,7 @@ python scripts/performance_test.py --scenario combined --delay-min 100 --delay-m
 python scripts/performance_test.py --scenario combined --delay-min 500 --delay-max 1000 --fault-prob 0.3
 ```
 
-### 场景5：并发压力测试
+### 场景5：并发测试
 
 **目的**：测试服务器的并发处理能力
 
@@ -143,6 +143,36 @@ python scripts/performance_test.py --concurrency 10 --count 200
 
 # 高并发：50个并发
 python scripts/performance_test.py --concurrency 50 --count 1000
+```
+
+### 场景6：流式响应测试
+
+**目的**：测试流式响应的性能和稳定性
+
+```bash
+# 流式响应基准测试
+python scripts/performance_test.py --stream --count 100
+
+# 流式响应并发测试
+python scripts/performance_test.py --stream --concurrency 10 --count 500
+
+# 流式响应+延迟注入
+python scripts/performance_test.py --stream --scenario delay --delay-min 100 --delay-max 200
+```
+
+### 场景7：日志系统性能测试
+
+**目的**：测试日志记录对性能的影响
+
+```bash
+# 启用日志记录的基准测试
+python scripts/performance_test.py --enable-logging --count 1000
+
+# 日志记录+高并发
+python scripts/performance_test.py --enable-logging --concurrency 20 --count 1000
+
+# 日志查询性能测试
+python scripts/performance_test.py --test-log-query --query-count 100
 ```
 
 ## 📈 结果分析

@@ -379,3 +379,167 @@ class TestInjectionAPIEndpoints:
         assert 50 <= delay_ms <= 200
         
         client.post("/v1/config/injection/reset")
+
+
+class TestStreamingAPIEndpoints:
+    @pytest.fixture
+    def client(self):
+        return TestClient(app)
+    
+    def test_stream_chat_completions_basic(self, client):
+        response = client.post(
+            "/v1/chat/completions",
+            json={
+                "messages": [
+                    {"role": "user", "content": "Hello"}
+                ],
+                "stream": True
+            }
+        )
+        assert response.status_code == 200
+        assert response.headers["content-type"] == "text/event-stream; charset=utf-8"
+        
+        content = response.text
+        assert "data: " in content
+        assert "chat.completion.chunk" in content
+        assert "[DONE]" in content
+    
+    def test_stream_chat_completions_chunks(self, client):
+        response = client.post(
+            "/v1/chat/completions",
+            json={
+                "messages": [
+                    {"role": "user", "content": "Hello"}
+                ],
+                "stream": True
+            }
+        )
+        assert response.status_code == 200
+        
+        content = response.text
+        lines = content.split("\n\n")
+        
+        # 检查至少有数据块和结束标记
+        assert len(lines) >= 2
+        assert "[DONE]" in content
+        
+        # 检查数据块格式
+        data_lines = [line for line in lines if line.startswith("data: ")]
+        assert len(data_lines) >= 2
+    
+    def test_stream_chat_completions_with_model(self, client):
+        response = client.post(
+            "/v1/chat/completions",
+            json={
+                "messages": [
+                    {"role": "user", "content": "Hello"}
+                ],
+                "model": "gpt-4",
+                "stream": True
+            }
+        )
+        assert response.status_code == 200
+        
+        content = response.text
+        assert '"model":"gpt-4"' in content
+    
+    def test_stream_chat_completions_with_delay(self, client):
+        client.put(
+            "/v1/config/injection",
+            json={
+                "delay": {
+                    "enabled": True,
+                    "min_delay_ms": 50,
+                    "max_delay_ms": 100
+                }
+            }
+        )
+        
+        start_time = time.time()
+        response = client.post(
+            "/v1/chat/completions",
+            json={
+                "messages": [
+                    {"role": "user", "content": "Hello"}
+                ],
+                "stream": True
+            }
+        )
+        end_time = time.time()
+        
+        assert response.status_code == 200
+        delay_ms = (end_time - start_time) * 1000
+        # 考虑流式响应和系统偏差，放宽容差
+        assert 50 <= delay_ms <= 500
+        
+        client.post("/v1/config/injection/reset")
+    
+    def test_stream_chat_completions_empty_response(self, client):
+        client.put(
+            "/v1/config/injection",
+            json={
+                "fault": {
+                    "enabled": True,
+                    "fault_type": "empty_response",
+                    "probability": 1.0
+                }
+            }
+        )
+        
+        response = client.post(
+            "/v1/chat/completions",
+            json={
+                "messages": [
+                    {"role": "user", "content": "Hello"}
+                ],
+                "stream": True
+            }
+        )
+        
+        assert response.status_code == 200
+        content = response.text
+        assert "finish_reason" in content
+        assert "[DONE]" in content
+        
+        client.post("/v1/config/injection/reset")
+    
+    def test_stream_chat_completions_structure(self, client):
+        response = client.post(
+            "/v1/chat/completions",
+            json={
+                "messages": [
+                    {"role": "user", "content": "Hello"}
+                ],
+                "stream": True
+            }
+        )
+        assert response.status_code == 200
+        
+        content = response.text
+        
+        # 检查必需字段
+        assert '"id":' in content
+        assert '"object":"chat.completion.chunk"' in content
+        assert '"created":' in content
+        assert '"model":' in content
+        assert '"choices":' in content
+        assert '"index":0' in content
+        assert '"delta":' in content
+        assert '"content":' in content
+    
+    def test_stream_chat_completions_finish_reason(self, client):
+        response = client.post(
+            "/v1/chat/completions",
+            json={
+                "messages": [
+                    {"role": "user", "content": "Hello"}
+                ],
+                "stream": True
+            }
+        )
+        assert response.status_code == 200
+        
+        content = response.text
+        
+        # 检查最后的finish_reason
+        assert '"finish_reason":"stop"' in content or '"finish_reason":null' in content

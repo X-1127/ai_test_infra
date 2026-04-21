@@ -43,6 +43,7 @@ htmlcov/
 
 # Logs
 logs/
+logs_test/
 *.log
 
 # Environment Variables

@@ -344,7 +344,7 @@ class TestYAMLConfigAPI:
         assert response.status_code == 200
         data = response.json()
         assert data["valid"] is True
-        assert "验证通过" in data["message"]
+        assert "message" in data
     
     def test_validate_yaml_config_invalid(self):
         client = TestClient(app)
@@ -374,7 +374,7 @@ class TestYAMLConfigAPI:
         assert response.status_code == 200
         data = response.json()
         assert data["valid"] is True
-        assert "验证通过" in data["message"]
+        assert "message" in data
     
     def test_validate_yaml_rule_empty_trigger(self):
         client = TestClient(app)

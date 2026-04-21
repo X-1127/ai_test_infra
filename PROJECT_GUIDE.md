@@ -7,11 +7,14 @@
 ### 🎯 核心特性
 
 - **OpenAI API兼容**: 完全兼容OpenAI聊天完成接口格式
+- **流式响应**: 支持SSE流式输出，模拟真实LLM的打字效果
 - **延迟注入**: 模拟网络延迟，测试应用响应时间和超时处理
 - **故障注入**: 模拟各种错误场景，验证错误处理机制
+- **日志系统**: 完整的请求、错误和访问日志记录与查询
 - **灵活配置**: 支持环境变量和运行时配置
 - **现代化架构**: 基于FastAPI和Pydantic V2构建
 - **完整测试**: 包含单元测试和集成测试
+- **环境隔离**: 测试环境与生产环境完全隔离
 - **Docker支持**: 提供Docker和Docker Compose部署方案
 
 ## 🏗️ 技术架构
@@ -286,7 +289,7 @@ LOG_LEVEL=INFO
 |------|------|------|
 | `/` | GET | 根路径，返回服务器信息 |
 | `/health` | GET | 健康检查 |
-| `/v1/chat/completions` | POST | 聊天完成接口 |
+| `/v1/chat/completions` | POST | 聊天完成接口（支持流式和非流式） |
 | `/v1/config/injection` | GET | 获取注入配置 |
 | `/v1/config/injection` | PUT | 更新注入配置 |
 | `/v1/config/injection/reset` | POST | 重置注入配置 |
@@ -302,6 +305,11 @@ LOG_LEVEL=INFO
 | `/v1/config/yaml/rules/{index}/disable` | PUT | 禁用YAML规则 |
 | `/v1/config/yaml/rules/validate` | POST | 验证YAML规则 |
 | `/v1/config/yaml/rules/search` | GET | 搜索YAML规则 |
+| `/v1/logs` | GET | 获取日志记录 |
+| `/v1/logs/request` | GET | 获取请求日志 |
+| `/v1/logs/error` | GET | 获取错误日志 |
+| `/v1/logs/access` | GET | 获取访问日志 |
+| `/v1/logs/clear` | POST | 清空日志 |
 
 ## 🎨 使用场景
 

@@ -20,8 +20,10 @@ class Settings(BaseSettings):
     rate_limit_enabled: bool = False
     rate_limit_requests: int = 100
     rate_limit_window: int = 60
+    
+    testing: bool = False
 
-    @field_validator('debug', 'rate_limit_enabled', mode='before')
+    @field_validator('debug', 'rate_limit_enabled', 'testing', mode='before')
     @classmethod
     def parse_bool(cls, v):
         if isinstance(v, bool):

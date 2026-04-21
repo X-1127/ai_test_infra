@@ -12,6 +12,7 @@ class ChatCompletionRequest(BaseModel):
     model: Optional[str] = "mock-model"
     temperature: Optional[float] = 1.0
     max_tokens: Optional[int] = 100
+    stream: Optional[bool] = False
 
 
 class ChoiceMessage(BaseModel):
@@ -31,6 +32,25 @@ class ChatCompletionResponse(BaseModel):
     created: int
     model: str
     choices: List[Choice]
+
+
+class StreamChoiceMessage(BaseModel):
+    role: Optional[str] = None
+    content: str
+
+
+class StreamChoice(BaseModel):
+    index: int = 0
+    delta: StreamChoiceMessage
+    finish_reason: Optional[str] = None
+
+
+class StreamChatCompletionResponse(BaseModel):
+    id: str
+    object: str = "chat.completion.chunk"
+    created: int
+    model: str
+    choices: List[StreamChoice]
 
 
 class HealthResponse(BaseModel):

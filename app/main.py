@@ -4,6 +4,7 @@ from fastapi import FastAPI
 from app.config import settings
 from app.models import HealthResponse, RootResponse
 from app.api.chat import router as chat_router
+from app.api.logs import router as logs_router
 
 
 @asynccontextmanager
@@ -22,6 +23,7 @@ app = FastAPI(
 )
 
 app.include_router(chat_router)
+app.include_router(logs_router)
 
 
 @app.get("/", response_model=RootResponse)
@@ -31,6 +33,7 @@ async def root():
         message=f"{settings.app_name} is running",
         endpoints={
             "chat_completions": "/v1/chat/completions",
+            "chat_completions_stream": "/v1/chat/completions (stream=true)",
             "get_injection_config": "/v1/config/injection",
             "update_injection_config": "/v1/config/injection",
             "reset_injection_config": "/v1/config/injection/reset",
@@ -46,6 +49,12 @@ async def root():
             "disable_yaml_rule": "/v1/config/yaml/rules/{index}/disable",
             "validate_yaml_rule": "/v1/config/yaml/rules/validate",
             "search_yaml_rules": "/v1/config/yaml/rules/search",
+            "get_logs": "/v1/logs",
+            "query_logs": "/v1/logs/query",
+            "search_logs": "/v1/logs/search",
+            "get_log_stats": "/v1/logs/stats",
+            "clear_logs": "/v1/logs",
+            "get_log_file_path": "/v1/logs/file/{log_type}",
             "health": "/health"
         }
     )

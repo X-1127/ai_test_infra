@@ -9,8 +9,8 @@ LLM Mock Server 项目采用了完整的测试体系，包括单元测试、集�
 | 测试类型 | 文件数 | 测试用例数 | 覆盖范围 |
 |---------|---------|-------------|----------|
 | 单元测试 | 3 | 62 | 数据模型、服务层、配置管理 |
-| 集成测试 | 2 | 41 | API端点、YAML配置API |
-| **总计** | **5** | **103** | **所有核心功能** |
+| 集成测试 | 3 | 46 | API端点、YAML配置API、日志API |
+| **总计** | **6** | **108** | **所有核心功能** |
 
 ### 测试覆盖率
 
@@ -34,7 +34,8 @@ tests/
 ├── integration/              # 集成测试
 │   ├── __init__.py
 │   ├── test_api.py          # API端点测试 (15个用例)
-│   └── test_yaml_config_api.py # YAML配置API测试 (26个用例)
+│   ├── test_yaml_config_api.py # YAML配置API测试 (26个用例)
+│   └── test_logs_api.py     # 日志API测试 (5个用例)
 └── fixtures/                # 测试数据
     ├── __init__.py
     └── test_data.json       # 预定义测试数据
@@ -318,6 +319,20 @@ def sample_multiple_messages():
 | Y-26 | test_search_yaml_rules_no_results | 无结果搜索 | 返回空列表，count=0 |
 | Y-27 | test_search_yaml_rules_case_insensitive | 大小写不敏感搜索 | 大小写不影响搜索结果 |
 
+### 3. 日志API测试 (test_logs_api.py)
+
+**测试目标**: 验证日志管理API的功能
+
+**测试类**: `TestLogsAPI`
+
+| 用例编号 | 测试方法 | 测试内容 | 验证点 |
+|---------|---------|---------|---------|
+| L-01 | test_get_all_logs | 获取所有日志 | 返回所有类型的日志记录 |
+| L-02 | test_get_request_logs | 获取请求日志 | 只返回请求类型的日志 |
+| L-03 | test_get_error_logs | 获取错误日志 | 只返回错误类型的日志 |
+| L-04 | test_get_access_logs | 获取访问日志 | 只返回访问类型的日志 |
+| L-05 | test_clear_logs | 清空日志 | 所有日志被清空，返回空列表 |
+
 ## 🎯 测试环境隔离
 
 ### 环境检测机制
@@ -337,6 +352,13 @@ is_test = os.getenv('PYTEST_XDIST_WORKER') is not None or \
 | 测试环境 | config/test_responses.yaml | 测试专用配置 |
 | 生产环境 | config/responses.yaml | 生产环境配置 |
 
+### 日志目录隔离
+
+| 环境 | 日志目录 | 用途 |
+|------|---------|------|
+| 测试环境 | logs_test/ | 测试日志，不影响生产 |
+| 生产环境 | logs/ | 生产日志 |
+
 ### 自动配置恢复
 
 每个测试前自动从模板恢复配置：
@@ -352,6 +374,27 @@ def reset_test_config():
         shutil.copy(template_path, test_config_path)
     
     yield
+```
+
+### 环境变量配置
+
+在测试文件中设置环境变量（必须在导入 app 之前）：
+
+```python
+import os
+
+# 必须在导入app之前设置环境变量
+os.environ['TESTING'] = '1'
+
+from app.main import app
+```
+
+### .gitignore 配置
+
+测试日志目录已添加到 .gitignore：
+
+```
+logs_test/
 ```
 
 ## 🚀 运行测试

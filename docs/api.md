@@ -2,7 +2,7 @@
 
 ## 概述
 
-Mock LLM Server 提供了 OpenAI 聊天完成 API 的模拟实现，专门用于测试目的。
+Mock LLM Server 提供了 OpenAI 聊天完成 API 的模拟实现，专门用于测试目的。支持流式响应、延迟注入、故障注入、日志记录等功能。
 
 ## 基础 URL
 
@@ -53,6 +53,12 @@ http://localhost:8000
     "disable_yaml_rule": "/v1/config/yaml/rules/{index}/disable",
     "validate_yaml_rule": "/v1/config/yaml/rules/validate",
     "search_yaml_rules": "/v1/config/yaml/rules/search",
+    "get_logs": "/v1/logs",
+    "query_logs": "/v1/logs/query",
+    "search_logs": "/v1/logs/search",
+    "get_log_stats": "/v1/logs/stats",
+    "clear_logs": "/v1/logs",
+    "get_log_file_path": "/v1/logs/file/{log_type}",
     "health": "/health"
   }
 }
@@ -164,7 +170,7 @@ http://localhost:8000
 
 **POST** `/v1/chat/completions`
 
-生成模拟的聊天完成响应。
+生成模拟的聊天完成响应。支持流式和非流式两种模式。
 
 **请求体示例:**
 ```json
@@ -177,7 +183,8 @@ http://localhost:8000
   ],
   "model": "mock-model",
   "temperature": 1.0,
-  "max_tokens": 100
+  "max_tokens": 100,
+  "stream": false
 }
 ```
 
@@ -188,8 +195,9 @@ http://localhost:8000
 - `model` (可选): 模型标识符（默认: "mock-model"）
 - `temperature` (可选): 采样温度（默认: 1.0）
 - `max_tokens` (可选): 最大生成token数（默认: 100）
+- `stream` (可选): 是否启用流式响应（默认: false）
 
-**响应示例:**
+**非流式响应示例:**
 ```json
 {
   "id": "mock-1234567890",
@@ -209,6 +217,162 @@ http://localhost:8000
 }
 ```
 
+**流式响应示例:**
+```
+data: {"id": "mock-1234567890", "object": "chat.completion.chunk", "created": 1234567890, "model": "mock-model", "choices": [{"index": 0, "delta": {"role": "assistant"}, "finish_reason": null}]}
+
+data: {"id": "mock-1234567890", "object": "chat.completion.chunk", "created": 1234567890, "model": "mock-model", "choices": [{"index": 0, "delta": {"content": "这"}, "finish_reason": null}]}
+
+data: {"id": "mock-1234567890", "object": "chat.completion.chunk", "created": 1234567890, "model": "mock-model", "choices": [{"index": 0, "delta": {"content": "是"}, "finish_reason": null}]}
+
+data: {"id": "mock-1234567890", "object": "chat.completion.chunk", "created": 1234567890, "model": "mock-model", "choices": [{"index": 0, "delta": {"content": "一"}, "finish_reason": null}]}
+
+data: {"id": "mock-1234567890", "object": "chat.completion.chunk", "created": 1234567890, "model": "mock-model", "choices": [{"index": 0, "delta": {"content": "个"}, "finish_reason": null}]}
+
+data: {"id": "mock-1234567890", "object": "chat.completion.chunk", "created": 1234567890, "model": "mock-model", "choices": [{"index": 0, "delta": {"content": "模"}, "finish_reason": null}]}
+
+data: {"id": "mock-1234567890", "object": "chat.completion.chunk", "created": 1234567890, "model": "mock-model", "choices": [{"index": 0, "delta": {"content": "拟"}, "finish_reason": null}]}
+
+data: {"id": "mock-1234567890", "object": "chat.completion.chunk", "created": 1234567890, "model": "mock-model", "choices": [{"index": 0, "delta": {"content": "响"}, "finish_reason": null}]}
+
+data: {"id": "mock-1234567890", "object": "chat.completion.chunk", "created": 1234567890, "model": "mock-model", "choices": [{"index": 0, "delta": {"content": "应"}, "finish_reason": null}]}
+
+data: {"id": "mock-1234567890", "object": "chat.completion.chunk", "created": 1234567890, "model": "mock-model", "choices": [{"index": 0, "delta": {"content": "。"}, "finish_reason": null}]}
+
+data: [DONE]
+```
+
+### 7. 获取日志
+
+**GET** `/v1/logs`
+
+获取日志记录，支持分页和类型过滤。
+
+**查询参数:**
+- `log_type` (可选): 日志类型 ("request", "error", "access")
+- `limit` (可选): 返回记录数量限制（默认: 100）
+- `offset` (可选): 起始位置偏移量（默认: 0）
+
+**响应示例:**
+```json
+{
+  "count": 5,
+  "limit": 100,
+  "offset": 0,
+  "logs": [
+    {
+      "timestamp": "2024-01-01T12:00:00.000000",
+      "type": "request",
+      "method": "POST",
+      "path": "/v1/chat/completions",
+      "status_code": 200,
+      "duration_ms": 45.5,
+      "client_ip": "127.0.0.1",
+      "user_agent": "testclient",
+      "body": "Response: 24 chars"
+    }
+  ]
+}
+```
+
+### 8. 查询日志
+
+**POST** `/v1/logs/query`
+
+根据条件查询日志记录。
+
+**请求体示例:**
+```json
+{
+  "log_type": "request",
+  "limit": 50,
+  "offset": 0
+}
+```
+
+**响应示例:**
+```json
+{
+  "count": 10,
+  "limit": 50,
+  "offset": 0,
+  "logs": [...]
+}
+```
+
+### 9. 搜索日志
+
+**POST** `/v1/logs/search`
+
+根据关键词搜索日志记录。
+
+**请求体示例:**
+```json
+{
+  "keyword": "chat",
+  "log_type": "request",
+  "limit": 20
+}
+```
+
+**响应示例:**
+```json
+{
+  "count": 5,
+  "keyword": "chat",
+  "logs": [...]
+}
+```
+
+### 10. 获取日志统计
+
+**GET** `/v1/logs/stats`
+
+获取日志统计信息。
+
+**响应示例:**
+```json
+{
+  "total_logs": 150,
+  "by_type": {
+    "request": 100,
+    "error": 5,
+    "access": 45
+  },
+  "recent_errors": 2,
+  "avg_response_time": 67.8
+}
+```
+
+### 11. 清空日志
+
+**DELETE** `/v1/logs`
+
+清空所有内存中的日志记录。
+
+**响应示例:**
+```json
+{
+  "message": "Logs cleared successfully"
+}
+```
+
+### 12. 获取日志文件路径
+
+**GET** `/v1/logs/file/{log_type}`
+
+获取指定类型日志文件的路径。
+
+**路径参数:**
+- `log_type`: 日志类型 ("request", "error", "access")
+
+**响应示例:**
+```json
+{
+  "file_path": "/path/to/logs/request.log"
+}
+```
+
 ## 错误响应
 
 ### 400 错误请求
@@ -216,6 +380,14 @@ http://localhost:8000
 ```json
 {
   "detail": "Messages list cannot be empty"
+}
+```
+
+### 404 未找到
+
+```json
+{
+  "detail": "Log file not found"
 }
 ```
 
@@ -227,6 +399,9 @@ http://localhost:8000
 - `PORT`: 服务器端口（默认: 8000）
 - `HOST`: 服务器主机（默认: 0.0.0.0）
 - `DEBUG`: 启用调试模式（默认: false）
+- `TESTING`: 测试模式（默认: false）
+- `LOG_LEVEL`: 日志级别（默认: INFO）
+- `LOG_FORMAT`: 日志格式（json/text，默认: json）
 
 ## 使用示例
 
@@ -277,6 +452,88 @@ fetch('http://localhost:8000/v1/chat/completions', {
 })
   .then(response => response.json())
   .then(data => console.log(data));
+```
+
+### 流式响应
+
+#### cURL
+
+```bash
+curl -X POST http://localhost:8000/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -d '{
+    "messages": [
+      {"role": "user", "content": "你好"}
+    ],
+    "stream": true
+  }'
+```
+
+#### Python
+
+```python
+import httpx
+
+response = httpx.post(
+    "http://localhost:8000/v1/chat/completions",
+    json={
+        "messages": [
+            {"role": "user", "content": "你好"}
+        ],
+        "stream": True
+    }
+)
+
+for line in response.iter_lines():
+    if line.startswith("data: "):
+        data = line[6:]
+        if data == "[DONE]":
+            break
+        print(data)
+```
+
+#### JavaScript
+
+```javascript
+fetch('http://localhost:8000/v1/chat/completions', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  body: JSON.stringify({
+    messages: [
+      { role: 'user', content: '你好' }
+    ],
+    stream: true
+  })
+})
+  .then(response => {
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    
+    function read() {
+      reader.read().then(({ done, value }) => {
+        if (done) return;
+        
+        const chunk = decoder.decode(value);
+        const lines = chunk.split('\n');
+        
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            const data = line[6:];
+            if (data === '[DONE]') {
+              return;
+            }
+            console.log(data);
+          }
+        }
+        
+        read();
+      });
+    }
+    
+    read();
+  });
 ```
 
 ### 延迟注入
@@ -452,6 +709,44 @@ for i in range(10):
         print(f"请求 {i+1}: 失败 - {e.response.status_code} - {e.response.text}")
 ```
 
+### 日志查询
+
+#### 获取所有日志
+
+```bash
+curl http://localhost:8000/v1/logs
+```
+
+#### 按类型过滤日志
+
+```bash
+curl "http://localhost:8000/v1/logs?log_type=request&limit=10"
+```
+
+#### 搜索日志
+
+```bash
+curl -X POST http://localhost:8000/v1/logs/search \
+  -H "Content-Type: application/json" \
+  -d '{
+    "keyword": "error",
+    "log_type": "error",
+    "limit": 20
+  }'
+```
+
+#### 获取日志统计
+
+```bash
+curl http://localhost:8000/v1/logs/stats
+```
+
+#### 清空日志
+
+```bash
+curl -X DELETE http://localhost:8000/v1/logs
+```
+
 ## 故障类型详解
 
 ### HTTP 错误 (http_error)
@@ -479,10 +774,14 @@ for i in range(10):
 3. **监控和日志**: 记录注入的延迟和故障，便于分析
 4. **重置配置**: 测试完成后记得重置配置
 5. **组合测试**: 同时测试延迟和故障，模拟真实复杂场景
+6. **流式响应**: 对于长响应内容，使用流式模式提升用户体验
 
 ## 注意事项
 
 - 延迟时间在 min_delay_ms 和 max_delay_ms 之间随机生成
 - 故障注入基于概率，不是每次请求都会触发
 - 超时故障会等待30秒后返回504错误
+- 流式响应会按字符分块返回内容
+- 日志记录所有请求，包括注入的延迟和故障信息
 - 建议在测试环境中使用，避免影响生产环境
+- 测试环境会使用独立的日志目录（logs_test/），避免污染生产日志
