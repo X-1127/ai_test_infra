@@ -4,9 +4,7 @@ __pycache__/
 *$py.class
 *.so
 .Python
-build/
 develop-eggs/
-dist/
 downloads/
 eggs/
 .eggs/
@@ -45,6 +43,7 @@ htmlcov/
 logs/
 logs_test/
 *.log
+desktop_errors.log
 
 # Environment Variables
 .env
@@ -67,3 +66,15 @@ Thumbs.db
 # YAML Config (keep example, ignore actual config)
 config/responses.yaml
 !config/responses.yaml.example
+
+# Build artifacts (PyInstaller) - 打包相关文件全部忽略
+build/
+dist/
+
+# PyInstaller and build scripts - 打包脚本全部忽略
+*.spec
+build.bat
+build.sh
+
+# Test files
+test_imports.py

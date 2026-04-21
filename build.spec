@@ -22,6 +22,9 @@ hiddenimports = [
     'PyQt6.QtGui',
     'PyQt6.QtWidgets',
     'fastapi',
+    'fastapi.routing',
+    'fastapi.middleware',
+    'fastapi.middleware.cors',
     'uvicorn',
     'uvicorn.logging',
     'uvicorn.loops',
@@ -29,13 +32,23 @@ hiddenimports = [
     'uvicorn.protocols',
     'uvicorn.protocols.http',
     'uvicorn.protocols.http.auto',
+    'uvicorn.protocols.websockets',
     'uvicorn.lifespan',
     'uvicorn.lifespan.on',
+    'uvicorn.server',
     'pydantic',
     'pydantic_settings',
+    'pydantic_core',
     'pyyaml',
     'httpx',
     'httpx._transports.default',
+    'httpx._transports.http2',
+    'starlette',
+    'starlette.applications',
+    'starlette.routing',
+    'starlette.middleware',
+    'starlette.responses',
+    'starlette.types',
     'app',
     'app.main',
     'app.config',
@@ -66,6 +79,13 @@ hiddenimports.extend(collect_submodules('desktop'))
 # 收集所有数据文件
 datas.extend(collect_data_files('app'))
 datas.extend(collect_data_files('desktop'))
+
+# 确保包含所有必要的包
+datas.extend(collect_data_files('fastapi'))
+datas.extend(collect_data_files('uvicorn'))
+datas.extend(collect_data_files('pydantic'))
+datas.extend(collect_data_files('pydantic_settings'))
+datas.extend(collect_data_files('starlette'))
 
 # 排除不需要的模块
 excludes = [
@@ -118,7 +138,7 @@ exe = EXE(
     upx=True,
     upx_exclude=[],
     runtime_tmpdir=None,
-    console=False,
+    console=True,  # 临时启用控制台以查看错误信息
     disable_windowed_traceback=False,
     argv_emulation=False,
     target_arch=None,

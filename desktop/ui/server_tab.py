@@ -282,9 +282,30 @@ class ServerTab(QWidget):
     @pyqtSlot(str)
     def on_server_error(self, error: str):
         """服务器错误事件"""
-        from PyQt6.QtWidgets import QMessageBox
-        QMessageBox.critical(self, "服务器错误", error)
+        # 将错误信息显示在输出文本框中，而不是弹出对话框
         self.output_text.append(f"错误: {error}")
+        self.output_text.append(f"时间: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+        self.output_text.append("-" * 50)
+        
+        # 更新状态标签
+        self.status_label.setText("状态: 🔴 启动失败")
+        self.start_button.setEnabled(True)
+        self.stop_button.setEnabled(False)
+        self.restart_button.setEnabled(False)
+        
+        # 停止健康检查
+        self.health_check_timer.stop()
+        
+        # 记录到日志文件
+        try:
+            import os
+            log_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "logs")
+            os.makedirs(log_dir, exist_ok=True)
+            error_log = os.path.join(log_dir, "desktop_errors.log")
+            with open(error_log, "a", encoding="utf-8") as f:
+                f.write(f"\n[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] {error}\n")
+        except Exception as e:
+            pass
     
     @pyqtSlot(str)
     def on_output_received(self, output: str):

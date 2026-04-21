@@ -10,10 +10,18 @@ from app.config import settings
 class LogManager:
     def __init__(self):
         if settings.testing:
-            self.log_dir = Path("logs_test")
+            self.log_dir = Path(settings.get_log_dir())
         else:
-            self.log_dir = Path("logs")
-        self.log_dir.mkdir(exist_ok=True)
+            self.log_dir = Path(settings.get_log_dir())
+        
+        # 确保日志目录存在
+        try:
+            self.log_dir.mkdir(parents=True, exist_ok=True)
+        except Exception as e:
+            # 如果无法创建日志目录，使用临时目录
+            import tempfile
+            self.log_dir = Path(tempfile.gettempdir()) / "llm_mock_server_logs"
+            self.log_dir.mkdir(parents=True, exist_ok=True)
         
         self.request_logger = self._setup_logger("request", "request.log")
         self.error_logger = self._setup_logger("error", "error.log")
