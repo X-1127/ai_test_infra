@@ -34,3 +34,14 @@ Thumbs.db
 .cache/
 config/responses.yaml
 !config/responses.yaml.example
+
+# Desktop application and build files
+desktop/
+assets/
+build.bat
+build.sh
+build.spec
+test_imports.py
+desktop_errors.log
+BUILD_GUIDE.md
+start_desktop.bat

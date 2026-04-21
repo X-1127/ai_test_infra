@@ -55,36 +55,6 @@ python desktop/main.py
 start_desktop.bat
 ```
 
-### 打包成可执行文件
-
-将整个项目（包括后端服务器和桌面应用）打包成独立的可执行文件：
-
-**Windows**:
-```bash
-# 运行打包脚本
-build.bat
-
-# 打包完成后，可执行文件位于：
-# dist\LLM_Mock_Server.exe
-```
-
-**Linux/Mac**:
-```bash
-# 运行打包脚本
-chmod +x build.sh
-./build.sh
-
-# 打包完成后，可执行文件位于：
-# dist/LLM_Mock_Server
-```
-
-**分发说明**:
-- 打包后的可执行文件包含所有依赖和资源
-- 用户无需安装 Python 即可直接运行
-- 双击运行即可启动桌面应用和后端服务器
-
-详细的打包指南请查看 [BUILD_GUIDE.md](BUILD_GUIDE.md)
-
 ### Docker部署
 
 ```bash
