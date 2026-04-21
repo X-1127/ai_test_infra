@@ -45,9 +45,9 @@ class MainWindow(QMainWindow):
         
         self.server_tab = ServerTab()
         self.config_tab = ConfigTab(self.server_tab.server_manager)
-        self.logs_tab = LogsTab()
-        self.test_tab = TestTab()
-        self.monitor_tab = MonitorTab()
+        self.logs_tab = LogsTab(self.server_tab.server_manager)
+        self.test_tab = TestTab(self.server_tab.server_manager)
+        self.monitor_tab = MonitorTab(self.server_tab.server_manager)
         
         self.tab_widget.addTab(self.server_tab, "服务器")
         self.tab_widget.addTab(self.config_tab, "配置")

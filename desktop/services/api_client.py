@@ -105,9 +105,16 @@ class APIClient:
             params["log_type"] = log_type
         return await self.get("/v1/logs", params)
     
+    async def search_logs(self, keyword: str, log_type: Optional[str] = None, limit: int = 100) -> Dict[str, Any]:
+        """搜索日志"""
+        data = {"keyword": keyword, "limit": limit}
+        if log_type:
+            data["log_type"] = log_type
+        return await self.post("/v1/logs/search", data)
+    
     async def clear_logs(self) -> Dict[str, Any]:
         """清空日志"""
-        return await self.post("/v1/logs/clear")
+        return await self.delete("/v1/logs")
     
     async def chat_completion(self, messages: List[Dict[str, str]], stream: bool = False) -> Dict[str, Any]:
         """聊天完成"""

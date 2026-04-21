@@ -4,7 +4,8 @@
 
 from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QPushButton,
-    QLabel, QLineEdit, QGroupBox, QFrame, QMessageBox
+    QLabel, QLineEdit, QGroupBox, QFrame, QMessageBox,
+    QTextEdit, QScrollArea
 )
 from PyQt6.QtCore import Qt, pyqtSlot, QTimer
 from PyQt6.QtGui import QFont, QPalette, QColor
@@ -163,20 +164,48 @@ class ServerTab(QWidget):
         output_group = QGroupBox("服务器输出")
         output_layout = QVBoxLayout()
         
-        self.output_label = QLabel("服务器输出将显示在这里...")
-        self.output_label.setWordWrap(True)
-        self.output_label.setStyleSheet("""
-            QLabel {
+        output_control_layout = QHBoxLayout()
+        
+        self.output_text = QTextEdit()
+        self.output_text.setReadOnly(True)
+        self.output_text.setStyleSheet("""
+            QTextEdit {
                 background-color: #1e1e1e;
                 color: #d4d4d4;
                 padding: 10px;
                 border-radius: 4px;
                 font-family: 'Consolas', 'Monaco', monospace;
                 font-size: 10px;
+                border: 1px solid #3c3c3c;
             }
         """)
-        self.output_label.setMinimumHeight(200)
-        output_layout.addWidget(self.output_label)
+        self.output_text.setMinimumHeight(200)
+        self.output_text.setPlaceholderText("服务器输出将显示在这里...")
+        
+        self.clear_output_button = QPushButton("清空输出")
+        self.clear_output_button.setMaximumWidth(80)
+        self.clear_output_button.setStyleSheet("""
+            QPushButton {
+                background-color: #607D8B;
+                color: white;
+                border: none;
+                border-radius: 4px;
+                padding: 5px 10px;
+            }
+            QPushButton:hover {
+                background-color: #546E7A;
+            }
+            QPushButton:pressed {
+                background-color: #455A64;
+            }
+        """)
+        self.clear_output_button.clicked.connect(self.clear_output)
+        
+        output_control_layout.addStretch()
+        output_control_layout.addWidget(self.clear_output_button)
+        
+        output_layout.addWidget(self.output_text)
+        output_layout.addLayout(output_control_layout)
         
         output_group.setLayout(output_layout)
         layout.addWidget(output_group)
@@ -227,7 +256,8 @@ class ServerTab(QWidget):
         self.stop_button.setEnabled(True)
         self.restart_button.setEnabled(True)
         self.port_input.setEnabled(False)
-        self.output_label.setText("服务器正在启动...")
+        self.output_text.clear()
+        self.output_text.append("服务器正在启动...")
         
         # 记录启动时间
         self.start_time_label.setText(f"启动时间: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
@@ -254,16 +284,19 @@ class ServerTab(QWidget):
         """服务器错误事件"""
         from PyQt6.QtWidgets import QMessageBox
         QMessageBox.critical(self, "服务器错误", error)
-        self.output_label.setText(f"错误: {error}")
+        self.output_text.append(f"错误: {error}")
     
     @pyqtSlot(str)
     def on_output_received(self, output: str):
         """服务器输出事件"""
-        current_text = self.output_label.text()
-        if current_text == "服务器输出将显示在这里..." or current_text == "服务器正在启动...":
-            self.output_label.setText(output)
-        else:
-            self.output_label.setText(f"{current_text}\n{output}")
+        self.output_text.append(output)
+        # 自动滚动到底部
+        scrollbar = self.output_text.verticalScrollBar()
+        scrollbar.setValue(scrollbar.maximum())
+    
+    def clear_output(self):
+        """清空输出"""
+        self.output_text.clear()
     
     def check_server_health(self):
         """检查服务器健康状态"""

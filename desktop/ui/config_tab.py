@@ -6,7 +6,7 @@ from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QPushButton,
     QLabel, QLineEdit, QGroupBox, QCheckBox,
     QSpinBox, QComboBox, QMessageBox, QTabWidget,
-    QTableWidget, QTableWidgetItem, QHeaderView
+    QTableWidget, QTableWidgetItem, QHeaderView, QDialog
 )
 from PyQt6.QtCore import Qt, pyqtSlot
 from PyQt6.QtGui import QFont
@@ -215,7 +215,9 @@ class ConfigTab(QWidget):
         """配置加载完成"""
         self.delay_tab.load_config(config.get('delay', {}))
         self.fault_tab.load_config(config.get('fault', {}))
-    
+         # 同时加载 YAML 配置
+        self.load_yaml_config()
+
     @pyqtSlot(dict)
     def on_config_updated(self, config: dict):
         """配置更新完成"""
@@ -245,11 +247,18 @@ class ConfigTab(QWidget):
             asyncio.set_event_loop(loop)
             result = loop.run_until_complete(self.api_client.get_yaml_config())
             loop.close()
-            
-            self.yaml_tab.load_config(result)
+        
+            # API 返回的数据结构是 {"enabled": bool, "config": {...}}
+            # 需要传递 config 部分给 yaml_tab.load_config
+            if 'config' in result:
+                self.yaml_tab.load_config(result['config'])
+            else:
+                self.yaml_tab.load_config(result)
         except Exception as e:
             # YAML配置加载失败不影响其他配置
-            pass
+            import traceback
+            print(f"加载YAML配置失败: {str(e)}")
+            traceback.print_exc()
 
 
 class DelayConfigTab(QWidget):
