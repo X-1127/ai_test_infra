@@ -39,11 +39,34 @@ class ServerThread(QThread):
         try:
             import uvicorn
             from app.config import settings
+            import logging
+            import sys as sys_module
             
             # 发送调试信息
             self.output_received.emit(f"Application path: {APPLICATION_PATH}")
             self.output_received.emit(f"Log directory: {settings.get_log_dir()}")
             self.output_received.emit(f"Config directory: {settings.get_config_dir()}")
+            
+            # 创建自定义日志处理器，将Uvicorn输出重定向到我们的信号
+            class UvicornLogHandler(logging.Handler):
+                def __init__(self, signal_callback):
+                    super().__init__()
+                    self.signal_callback = signal_callback
+                
+                def emit(self, record):
+                    msg = self.format(record)
+                    self.signal_callback.emit(msg)
+            
+            # 配置根日志记录器
+            root_logger = logging.getLogger()
+            root_logger.setLevel(logging.DEBUG)
+            
+            # 添加我们的自定义处理器
+            uvicorn_handler = UvicornLogHandler(self.output_received)
+            uvicorn_handler.setLevel(logging.DEBUG)
+            formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+            uvicorn_handler.setFormatter(formatter)
+            root_logger.addHandler(uvicorn_handler)
             
             # 创建自定义配置以捕获输出
             config = uvicorn.Config(
