@@ -3,7 +3,7 @@ API客户端，用于与LLM Mock Server通信
 """
 
 import httpx
-from typing import Dict, Any, Optional, List
+from typing import Dict, Any, Optional, List,Union
 from desktop.config.settings import settings
 
 
@@ -116,10 +116,20 @@ class APIClient:
         """清空日志"""
         return await self.delete("/v1/logs")
     
-    async def chat_completion(self, messages: List[Dict[str, str]], stream: bool = False) -> Dict[str, Any]:
+    async def chat_completion(self, messages: List[Dict[str, str]], stream: bool = False) -> Union[Dict[str, Any], str]:
         """聊天完成"""
         data = {
             "messages": messages,
             "stream": stream
         }
-        return await self.post("/v1/chat/completions", data)
+    
+        if stream:
+            # 流式响应
+            async with httpx.AsyncClient(timeout=self.timeout) as client:
+                response = await client.post(f"{self.base_url}/v1/chat/completions", json=data)
+                response.raise_for_status()
+                # 返回原始文本内容
+                return response.text
+        else:
+            # 非流式响应
+            return await self.post("/v1/chat/completions", data)

@@ -322,7 +322,7 @@ class MonitorTab(QWidget):
             return
         
         self.api_thread.run_get_logs(log_type="error", limit=10)
-
+    
     def load_request_logs(self):
         """加载请求日志用于响应时间统计"""
         if not self.server_manager.is_running:
@@ -370,26 +370,26 @@ class MonitorTab(QWidget):
     @pyqtSlot(list)
     def on_logs_loaded(self, logs: list):
         """日志加载完成"""
-          # 判断日志类型
+        # 判断日志类型
         if not logs:
             return
-    
+        
         log_type = logs[0].get('type', '')
-    
+        
         if log_type == 'error':
             # 处理错误日志
             self.recent_errors_text.clear()
-        
+            
             if not logs:
                 self.recent_errors_text.append("最近没有错误")
                 return
-        
+            
             for log in logs:
                 timestamp = log.get('timestamp', '')
                 message = log.get('message', '')
                 error_line = f"[{timestamp}] {message}"
                 self.recent_errors_text.append(error_line)
-        
+            
             # 自动滚动到底部
             scrollbar = self.recent_errors_text.verticalScrollBar()
             scrollbar.setValue(scrollbar.maximum())
@@ -399,25 +399,40 @@ class MonitorTab(QWidget):
     
     def update_response_time_stats(self, logs: list):
         """更新响应时间统计"""
+        print(f"[DEBUG] update_response_time_stats called with {len(logs)} logs")
+        
         request_logs = [log for log in logs if log.get('type') == 'request']
-        
+        print(f"[DEBUG] Found {len(request_logs)} request logs")
+    
+        request_logs = [log for log in logs if log.get('type') == 'request']
+        print(f"[DEBUG] Found {len(request_logs)} request logs")
+    
         if not request_logs:
+            print("[DEBUG] No request logs found, returning")
             return
-        
+    
         response_times = [log.get('duration_ms', 0) for log in request_logs]
-        
+        print(f"[DEBUG] Response times: {response_times}")
+    
         if response_times:
             min_time = min(response_times)
             max_time = max(response_times)
             avg_time = sum(response_times) / len(response_times)
-            
+        
             sorted_times = sorted(response_times)
             p95_time = sorted_times[int(len(sorted_times) * 0.95)]
-            
-            self.min_response_time_label.setText(f"{min_time:.1f} ms")
-            self.max_response_time_label.setText(f"{max_time:.1f} ms")
-            self.avg_time_detail_label.setText(f"{avg_time:.1f} ms")
-            self.p95_response_time_label.setText(f"{p95_time:.1f} ms")
+        
+            print(f"[DEBUG] Min: {min_time}, Max: {max_time}, Avg: {avg_time}, P95: {p95_time}")
+        
+            # 确保标签存在
+            if hasattr(self, 'min_response_time_label'):
+                self.min_response_time_label.setText(f"{min_time:.1f} ms")
+            if hasattr(self, 'max_response_time_label'):
+                self.max_response_time_label.setText(f"{max_time:.1f} ms")
+            if hasattr(self, 'avg_time_detail_label'):
+                self.avg_time_detail_label.setText(f"{avg_time:.1f} ms")
+            if hasattr(self, 'p95_response_time_label'):
+                self.p95_response_time_label.setText(f"{p95_time:.1f} ms")
     
     @pyqtSlot(str)
     def on_error(self, error: str):

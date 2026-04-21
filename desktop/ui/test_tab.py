@@ -73,14 +73,20 @@ class ChatTestThread(QThread):
                 self.api_client.chat_completion(self.messages, stream=True)
             )
             
+            # 处理SSE格式的响应
             if isinstance(result, str):
-                for line in result.split('\n'):
+                lines = result.split('\n')
+                for line in lines:
+                    line = line.strip()
+                    if not line:
+                        continue
+                    
                     if line.startswith('data: '):
                         data_str = line[6:]
                         if data_str == '[DONE]':
                             self.stream_finished.emit()
                             break
-                        
+                    
                         try:
                             import json
                             data = json.loads(data_str)
@@ -89,8 +95,11 @@ class ChatTestThread(QThread):
                                 content = delta.get('content', '')
                                 if content:
                                     self.stream_chunk_received.emit(content)
-                        except json.JSONDecodeError:
-                            pass
+                        except json.JSONDecodeError as e:
+                            print(f"[DEBUG] JSON解析错误: {e}, 数据: {data_str}")
+        except Exception as e:
+            print(f"[DEBUG] 流式聊天错误: {e}")
+            self.error_occurred.emit(f"流式聊天失败: {str(e)}")
         finally:
             loop.close()
 
