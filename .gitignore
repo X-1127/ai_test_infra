@@ -67,14 +67,25 @@ Thumbs.db
 config/responses.yaml
 !config/responses.yaml.example
 
-# Build artifacts (PyInstaller) - 打包相关文件全部忽略
+# Build artifacts
 build/
 dist/
 
-# PyInstaller and build scripts - 打包脚本全部忽略
+# PyInstaller
 *.spec
+
+# Load test reports
+loadtest_reports/
+
+# Old project structure (removed after refactoring)
+app/
+desktop/
+scripts/
+tests/
+Dockerfile
+docker-compose.yml
 build.bat
 build.sh
-
-# Test files
-test_imports.py
+build.spec
+start_desktop.bat
+pyproject.toml
