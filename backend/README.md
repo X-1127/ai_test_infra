@@ -74,6 +74,36 @@ pytest tests/ --cov=app --cov-report=html
 pytest tests/unit/test_services.py -v
 ```
 
+## 性能压测
+
+```bash
+# 安装压测依赖
+pip install -e ".[loadtest]"
+
+# 运行基准测试
+python scripts/run_loadtest.py --scenario baseline
+
+# 运行负载测试
+python scripts/run_loadtest.py --scenario load
+
+# 运行稳定性测试
+python scripts/run_loadtest.py --scenario stability
+
+# 运行压力测试
+python scripts/run_loadtest.py --scenario stress
+
+# 运行所有场景
+python scripts/run_loadtest.py --scenario all
+```
+
+**压测场景**：
+- 基准测试：10 users, 120s - 获取基线数据
+- 负载测试：逐步加压到100 users - 找到性能拐点
+- 稳定性测试：50 users, 3600s - 检验系统稳定性
+- 压力测试：逐步加压到300 users - 找出系统极限
+
+详细文档：[docs/loadtest_guide.md](docs/loadtest_guide.md)
+
 ## 配置
 
 ### 环境变量

@@ -76,6 +76,7 @@ dist/
 
 # Load test reports
 loadtest_reports/
+backend/loadtest_reports/
 
 # Old project structure (removed after refactoring)
 app/

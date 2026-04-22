@@ -74,9 +74,8 @@ dist/
 # PyInstaller
 *.spec
 
-# Load test reports
-loadtest_reports/
-
 # Desktop app (backend only)
 desktop-app/
-backend/tests/loadtest/
+
+# Load test reports
+loadtest_reports/
