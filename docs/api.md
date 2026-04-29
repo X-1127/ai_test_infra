@@ -357,19 +357,85 @@ data: [DONE]
 }
 ```
 
-### 12. 获取日志文件路径
+### 13. 验证 YAML 配置
 
-**GET** `/v1/logs/file/{log_type}`
+**POST** `/v1/config/yaml/validate`
 
-获取指定类型日志文件的路径。
+验证 YAML 配置格式是否正确。
 
-**路径参数:**
-- `log_type`: 日志类型 ("request", "error", "access")
+**请求体示例:**
+```json
+{
+  "version": "1.0",
+  "description": "测试配置",
+  "rules": [
+    {
+      "name": "问候规则",
+      "trigger": "你好",
+      "match_type": "exact",
+      "response": "你好！我是 Mock LLM Server。",
+      "enabled": true
+    }
+  ]
+}
+```
 
 **响应示例:**
 ```json
 {
-  "file_path": "/path/to/logs/request.log"
+  "valid": true,
+  "message": "配置验证通过"
+}
+```
+
+### 14. 验证 YAML 规则
+
+**POST** `/v1/config/yaml/rules/validate`
+
+验证单个 YAML 规则格式是否正确。
+
+**请求体示例:**
+```json
+{
+  "name": "问候规则",
+  "trigger": "你好",
+  "match_type": "exact",
+  "response": "你好！我是 Mock LLM Server。",
+  "enabled": true
+}
+```
+
+**响应示例:**
+```json
+{
+  "valid": true,
+  "message": "规则验证通过"
+}
+```
+
+### 15. 搜索 YAML 规则
+
+**GET** `/v1/config/yaml/rules/search`
+
+根据关键词搜索 YAML 规则。
+
+**查询参数:**
+- `keyword` (必需): 搜索关键词
+- `match_type` (可选): 匹配类型过滤 ("exact", "contains", "regex")
+
+**响应示例:**
+```json
+{
+  "results": [
+    {
+      "name": "问候规则",
+      "trigger": "你好",
+      "match_type": "exact",
+      "response": "你好！我是 Mock LLM Server。",
+      "enabled": true
+    }
+  ],
+  "count": 1
 }
 ```
 
