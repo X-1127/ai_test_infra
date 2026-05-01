@@ -78,6 +78,9 @@ dist/
 loadtest_reports/
 backend/loadtest_reports/
 
+# Internal documentation (not for public repo)
+backend/docs/internal/
+
 # Old project structure (removed after refactoring)
 app/
 desktop/
